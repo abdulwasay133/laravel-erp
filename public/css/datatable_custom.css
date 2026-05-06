@@ -1,0 +1,73 @@
+
+    /* ── DataTables overrides ─────────────────────────── */
+    div.dataTables_wrapper div.dataTables_filter input {
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 5px 12px;
+        font-size: 13px;
+        width: 220px;
+    }
+    div.dataTables_wrapper div.dataTables_length select {
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 4px 8px;
+        font-size: 13px;
+    }
+    div.dataTables_wrapper div.dataTables_info {
+        font-size: 12px;
+        color: #64748b;
+    }
+    .dataTables_paginate .page-link {
+        border-radius: 6px !important;
+        font-size: 13px;
+    }
+    table.dataTable thead th {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        color: #64748b;
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0 !important;
+        white-space: nowrap;
+    }
+    table.dataTable tbody tr:hover td { background: #f8fafc; }
+    table.dataTable td { vertical-align: middle; font-size: 13.5px; }
+
+    /* ── Export button styling ────────────────────────── */
+    .dt-buttons {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+    .dt-buttons .btn {
+        font-size: 13px;
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-weight: 500;
+    }
+    /* Copy */
+    .buttons-copy    { background: #f1f5f9 !important; color: #334155 !important; border: 1px solid #e2e8f0 !important; }
+    .buttons-copy:hover { background: #e2e8f0 !important; }
+    /* Excel */
+    .buttons-excel   { background: #dcfce7 !important; color: #166534 !important; border: 1px solid #bbf7d0 !important; }
+    .buttons-excel:hover { background: #bbf7d0 !important; }
+    /* PDF */
+    .buttons-pdf     { background: #fee2e2 !important; color: #991b1b !important; border: 1px solid #fecaca !important; }
+    .buttons-pdf:hover { background: #fecaca !important; }
+    /* Print */
+    .buttons-print   { background: #ede9fe !important; color: #5b21b6 !important; border: 1px solid #ddd6fe !important; }
+    .buttons-print:hover { background: #ddd6fe !important; }
+    /* CSV */
+    .buttons-csv     { background: #fef9c3 !important; color: #854d0e !important; border: 1px solid #fef08a !important; }
+    .buttons-csv:hover { background: #fef08a !important; }
+
+    /* Loading spinner */
+    .dataTables_processing {
+        background: rgba(255,255,255,.9) !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 8px !important;
+        font-size: 13px !important;
+        color: #64748b !important;
+        padding: 10px 20px !important;
+    }
