@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
+    use SoftDeletes;
     protected $guarded = [];
 
     public function category()
@@ -28,8 +30,12 @@ class Product extends Model
         return $this->belongsToMany(
             Supplier::class,
             'product_suppliers'
-        )->withPivot('cost')
+        )->withPivot('cost', 'is_preferred')
         ->withTimestamps();
     }
 
+    public function purchaseItems()
+    {
+        return $this->hasMany(PurchaseItem::class);
+    }
 }

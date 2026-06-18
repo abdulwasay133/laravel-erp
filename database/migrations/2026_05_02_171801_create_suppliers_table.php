@@ -26,7 +26,7 @@ return new class extends Migration
             $table->string('postal_code')->nullable();
             $table->string('currency')->nullable();
             $table->integer('opening_balance')->default(0);
-            $table->integer('balance')->defauld(0);
+            $table->integer('balance')->default(0);
             $table->boolean('active')->default(true);
             $table->timestamps();
         });

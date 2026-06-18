@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Dashboard') — ERP System</title>
+    <title>@yield('title', 'Dashboard') — {{ \App\Models\Setting::getValue('company_name', 'ERP System') }}</title>
 
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -19,13 +19,64 @@
     <link href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css" rel="stylesheet">
     
+    <!-- flatpickr -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
-    
+    <!-- Select2 -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet">
 
     <!-- Your custom CSS -->
     <link href="{{ asset('css/style.css') }}" rel="stylesheet">
     <link href="{{ asset('css/datatable_custom.css') }}" rel="stylesheet">
 
+    <style>
+        :root { --fp-primary: #6366f1; --fp-primary-light: rgba(99,102,241,0.15); }
+        .flatpickr-calendar { border-radius: 10px; box-shadow: 0 8px 30px rgba(0,0,0,0.12); }
+        .flatpickr-day.today { border-color: var(--fp-primary); }
+        .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange,
+        .flatpickr-day.selected.inRange, .flatpickr-day.startRange.inRange, .flatpickr-day.endRange.inRange,
+        .flatpickr-day:focus, .flatpickr-day:hover { background: var(--fp-primary); border-color: var(--fp-primary); }
+        .flatpickr-day.inRange { background: var(--fp-primary-light); border-color: transparent; box-shadow: -5px 0 0 var(--fp-primary-light),5px 0 0 var(--fp-primary-light); }
+        .flatpickr-months .flatpickr-month { background: transparent; }
+        .flatpickr-current-month .flatpickr-monthDropdown-months { font-weight: 600; }
+        .flatpickr-current-month input.cur-year { font-weight: 600; }
+        .flatpickr-months .flatpickr-prev-month svg, .flatpickr-months .flatpickr-next-month svg { fill: #6366f1; }
+        .flatpickr-weekday { color: #64748b; font-weight: 600; }
+        .numInputWrapper span.arrowUp, .numInputWrapper span.arrowDown { display: none; }
+
+        .date-range-group {
+            display: flex;
+            align-items: center;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: #fff;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        .date-range-group:focus-within {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+        }
+        .date-range-group .form-control,
+        .date-range-group .flatpickr-input {
+            border: none;
+            background: transparent;
+            padding: 0.4rem 0.5rem;
+            font-size: 0.875rem;
+        }
+        .date-range-group .form-control:focus,
+        .date-range-group .flatpickr-input:focus { box-shadow: none; }
+        .range-sep { flex-shrink: 0; color: #94a3b8; font-weight: 600; font-size: 14px; padding: 0 1px; user-select: none; }
+
+        /* ── Select2 indigo theme ── */
+        .select2-container--bootstrap-5 .select2-selection { border-color: #d1d5db; border-radius: 6px; min-height: 37px; }
+        .select2-container--bootstrap-5.select2-container--focus .select2-selection,
+        .select2-container--bootstrap-5.select2-container--open .select2-selection { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.12); }
+        .select2-container--bootstrap-5 .select2-dropdown { border-color: #d1d5db; border-radius: 8px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); }
+        .select2-container--bootstrap-5 .select2-results__option--selected { background: rgba(99,102,241,0.08); color: #6366f1; }
+        .select2-container--bootstrap-5 .select2-results__option--highlighted { background: #6366f1; color: #fff; }
+        .select2-container--bootstrap-5 .select2-search__field:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.12); }
+    </style>
 
 
     @stack('styles')
@@ -77,8 +128,13 @@
 <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
 
-{{-- sweet alerts
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> --}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- flatpickr -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<!-- Select2 -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <!-- 7. Layout JS -->
 <script>
     // Sidebar toggle (mobile)
@@ -101,6 +157,71 @@
             link.closest('.has-sub').classList.toggle('open');
         });
     });
+
+    // flatpickr — two linked pickers (start / end)
+    $('.date-range-group').each(function () {
+        var $g = $(this);
+        var startHidden = $g.find('#startDate')[0];
+        var endHidden   = $g.find('#endDate')[0];
+        if (!startHidden || !endHidden) return;
+        var $startEl = $g.find('.flatpickr-start');
+        var $endEl   = $g.find('.flatpickr-end');
+        if (!$startEl.length || !$endEl.length) return;
+
+        var startFp = flatpickr($startEl[0], {
+            dateFormat: 'Y-m-d',
+            altFormat: 'M j, Y',
+            altInput: true,
+            altInputClass: 'form-control bg-transparent',
+            maxDate: endHidden.value || null,
+            onChange: function (dates) {
+                startHidden.value = dates.length ? startFp.formatDate(dates[0], 'Y-m-d') : '';
+                endFp.set('minDate', dates.length ? dates[0] : null);
+            },
+        });
+        var endFp = flatpickr($endEl[0], {
+            dateFormat: 'Y-m-d',
+            altFormat: 'M j, Y',
+            altInput: true,
+            altInputClass: 'form-control bg-transparent',
+            minDate: startHidden.value || null,
+            onChange: function (dates) {
+                endHidden.value = dates.length ? endFp.formatDate(dates[0], 'Y-m-d') : '';
+                startFp.set('maxDate', dates.length ? dates[0] : null);
+            },
+        });
+    });
+
+    // Select2 — searchable dropdowns
+    function initSelect2($el) {
+        if ($el.data('select2')) $el.select2('destroy');
+        var opts = {
+            theme: 'bootstrap-5',
+            width: '100%',
+            placeholder: $el.find('option:first').text() || 'Select...',
+            allowClear: true,
+            minimumResultsForSearch: 0,
+            dropdownParent: $el.closest('.modal').length ? $el.closest('.modal') : $(document.body),
+        };
+        $el.select2(opts);
+    }
+    $('select.form-select:not([multiple]), select.product-select:not([multiple]), select.batch-select:not([multiple])').each(function () { initSelect2($(this)); });
+    // Re-init after DataTables draws
+    $(document).on('draw.dt', function () {
+        setTimeout(function () {
+            $('select.form-select:not([multiple]):not(.select2-hidden-accessible), select.product-select:not([multiple]):not(.select2-hidden-accessible), select.batch-select:not([multiple]):not(.select2-hidden-accessible)').each(function () { initSelect2($(this)); });
+        }, 50);
+    });
+    // Auto-init dynamically added rows (Add Item)
+    var selObserver = new MutationObserver(function (muts) {
+        muts.forEach(function (m) {
+            m.addedNodes.forEach(function (n) {
+                if (n.nodeType !== 1) return;
+                $(n).find('select.product-select:not(.select2-hidden-accessible), select.batch-select:not(.select2-hidden-accessible)').add(n).filter('select.product-select:not(.select2-hidden-accessible), select.batch-select:not(.select2-hidden-accessible)').each(function () { initSelect2($(this)); });
+            });
+        });
+    });
+    selObserver.observe(document.body, { childList: true, subtree: true });
 </script>
 
 <!-- 8. Page-specific scripts pushed here -->

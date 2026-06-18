@@ -176,9 +176,12 @@
                             <label class="form-label fw-600">Opening Balance (PKR)</label>
                             <div class="input-group">
                                 <span class="input-group-text">Rs.</span>
-                                <input type="number" name="opening_balance" class="form-control"
+                                <input type="number" name="opening_balance" class="form-control @error('opening_balance') is-invalid @enderror"
                                        value="{{ old('opening_balance', $supplier->opening_balance ?? 0) }}"
-                                       min="0" step="1000">
+                                       min="1000" step="1000">
+                                @error('opening_balance')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                         

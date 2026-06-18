@@ -36,7 +36,7 @@
                             <label class="form-label fw-600">Product Name <span class="text-danger">*</span></label>
                             <input type="text" name="product_name"
                                    class="form-control @error('product_name') is-invalid @enderror"
-                                   value="{{ old('product_name', $product->name ?? '') }}"
+                                   value="{{ old('product_name', $product?->name ?? '') }}"
                                    placeholder="e.g. Coke 500ml">
                             @error('product_name')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -49,7 +49,7 @@
                             <div class="input-group">
                                 <input type="text" name="sku" id="skuField"
                                        class="form-control @error('sku') is-invalid @enderror"
-                                       value="{{ old('sku', $product->sku ?? '') }}"
+                                       value="{{ old('sku', $product?->sku ?? '') }}"
                                        placeholder="Auto Generated">
                                        <span  onclick="generateSKU()" type="button" class="input-group-text"><i class="bi bi-arrow-clockwise"></i></span>
                                 @error('sku')
@@ -64,7 +64,7 @@
                                 <option value='0' selected disabled >Select Unit </option>
                                 @foreach( $units as $unit)
                                     <option value="{{ $unit->id }}" 
-                                        {{ old('unit', $product->unit_id ?? '') == $unit->id ? 'selected' : '' }}>{{ $unit->name }}</option>
+                                        {{ old('unit', $product?->unit_id ?? '') == $unit->id ? 'selected' : '' }}>{{ $unit->name }}</option>
                                 @endforeach
                             </select>
                             @error('unit')
@@ -78,7 +78,7 @@
                                 <option value='0' selected disabled >Select Category </option>
                                 @foreach( $categories as $category)
                                     <option value="{{ $category->id }}" 
-                                        {{ old('category', $product->category_id ?? '') == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
+                                        {{ old('category', $product?->category_id ?? '') == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
                                 @endforeach
                             </select>
                             @error('category')
@@ -89,7 +89,7 @@
                         <div class="col-12">
                             <label class="form-label fw-600">Notes</label>
                             <textarea name="notes" class="form-control" rows="3"
-                                      placeholder="Any additional notes...">{{ old('notes', $product->description ?? '') }}</textarea>
+                                      placeholder="Any additional notes...">{{ old('notes', $product?->description ?? '') }}</textarea>
                         </div>
                     </div>
 
@@ -105,48 +105,42 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <div class="row g-3">
-                        
-                        <div class="col-md-3">
-                            <label class="form-label fw-600">Opening Stock</label>
-                            <input type="number" name="opening_stock" class="form-control"
-                                   value="{{ old('opening_stock', $product->batches[0]->quantity ?? '') }}"
+                    <div class="row row-cols-4 g-2">
+                        <div class="col">
+                            <label class="form-label fw-600 small mb-1">Opening Stock</label>
+                            <input type="number" name="opening_stock" class="form-control form-control-sm"
+                                   value="{{ old('opening_stock', $product?->batches?->first()?->quantity ?? '') }}"
                                    placeholder="0">
-                                   @error('opening_stock')
-                                       <div class="invalid-feedback">{{ $message }}</div>
-                                   @enderror
+                            @error('opening_stock')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
-
-                        <div class="col-md-3">
-                            <label class="form-label fw-600">Sale Price</label>
-                                <input type="number" name="sale_price" class="form-control  @error('sale_price') is-invalid @enderror""
-                                       value="{{ old('sale_price', $product->price ?? '') }}"
-                                       placeholder="0">
+                        <div class="col">
+                            <label class="form-label fw-600 small mb-1">Sale Price</label>
+                            <input type="number" name="sale_price" class="form-control form-control-sm @error('sale_price') is-invalid @enderror"
+                                   value="{{ old('sale_price', $product?->sale_price ?? $product?->price ?? '') }}"
+                                   placeholder="0">
                             @error('sale_price')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-
-
-                        <div class="col-md-3">
-                            <label class="form-label fw-600"> Purchase Price</label>
-                            <input type="number" name="purchase_price" class="form-control  @error('purchase_price') is-invalid @enderror""
-                                   value="{{ old('purchase_price', $product->batches[0]->cost ?? '') }}"
+                        <div class="col">
+                            <label class="form-label fw-600 small mb-1">Purchase Price</label>
+                            <input type="number" name="purchase_price" class="form-control form-control-sm @error('purchase_price') is-invalid @enderror"
+                                   value="{{ old('purchase_price', $product?->batches?->first()?->cost ?? '') }}"
                                    placeholder="0">
-
-                                   @error('purchase_price')
-                                       <div class="invalid-feedback">{{ $message }}</div>
-                                   @enderror
+                            @error('purchase_price')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
-
-                        <div class="col-md-3">
-                            <label class="form-label fw-600"> Minimum Quantity</label>
-                            <input type="number" name="minimum_quantity" class="form-control @error('minimum_quantity') is-invalid @enderror"
-                                   value="{{ old('minimum_quantity', $product->alert_quantity ?? '') }}"
+                        <div class="col">
+                            <label class="form-label fw-600 small mb-1">Min Qty</label>
+                            <input type="number" name="minimum_quantity" class="form-control form-control-sm @error('minimum_quantity') is-invalid @enderror"
+                                   value="{{ old('minimum_quantity', $product?->alert_quantity ?? '') }}"
                                    placeholder="10">
-                                   @error('minimum_quantity')
-                                       <div class="invalid-feedback">{{ $message }}</div>
-                                   @enderror
+                            @error('minimum_quantity')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
                 </div>
@@ -163,45 +157,39 @@
                 <div class="card-body">
                     <label class="toggle-switch">
                         <input type="checkbox" name="has_expiry" class="p-2" id="hasExpiry" value="1"
-                               {{ old('has_expiry', $product->is_expiry ?? false) ? 'checked' : '' }}
+                               {{ old('has_expiry', $product?->is_expiry ?? false) ? 'checked' : '' }}
                                onchange="toggleExpiry(this)">
                         <span class="toggle-switch__slider"></span>
                         <span class="toggle-switch__label">Track Expiry</span>
                     </label>
-                    <div class="row g-3" id="expiryFields" style="{{ old('has_expiry', $product->has_expiry ?? false) ? '' : '' }}">
-                        {{-- <div class="col-12">
-                            <label class="form-label fw-600">Street Address</label>
-                            <input type="text" name="address" class="form-control"
-                                   value="{{ old('address', $product->address ?? '') }}"
-                                   placeholder="Street, Block, Area">
-                        </div> --}}
+                    <div class="row g-3" id="expiryFields" style="display: {{ old('has_expiry', $product?->is_expiry ?? false) || $errors->has('expiry_alert_days') ? '' : 'none' }};">
                         <div class="col-md-4">
                             <label class="form-label fw-600">Expiry Date</label>
-                            <input type="date" name="expiry_date" class="form-control"
-                                   value="{{ old('expiry_date', $product->batches[0]->expiry_date ?? '') }}"
+                            <input type="date" name="expiry_date" id="expiryDateField" class="form-control"
+                                   value="{{ old('expiry_date', $product?->batches?->first()?->expiry_date ?? '') }}"
                                    placeholder="0">
-                                   @error('expiry_date')
-                                       <div class="invalid-feedback">{{ $message }}</div>                                       
-                                   @enderror
+                            @error('expiry_date')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <div id="expiryStatusBar" style="display:none;margin-top:6px;font-size:13px;padding:4px 8px;border-radius:6px;"></div>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-600">Batch / Lot Number</label>
-                                <input type="text" name="batch_number" class="form-control"
-                                       value="{{ old('batch_number', $product->batches[0]->batch_number ?? '') }}"
-                                       placeholder="0">
+                            <input type="text" name="batch_number" class="form-control"
+                                   value="{{ old('batch_number', $product?->batches?->first()?->batch_number ?? '') }}"
+                                   placeholder="0">
                             @error('batch_number')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
-                              
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-600"> Expiry Alert (days before)</label>
-                            <input type="text" name="expriy_alert_days" class="form-control"
-                                   value="{{ old('expriy_alert_days', $product->alert_days ?? '') }}"
+                            <label class="form-label fw-600">Expiry Alert (days before)</label>
+                            <input type="number" name="expiry_alert_days" class="form-control @error('expiry_alert_days') is-invalid @enderror"
+                                   value="{{ old('expiry_alert_days', $product?->expiry_alert_days ?? '') }}"
                                    placeholder="30">
-                                   @error('expriy_alert_days')
-                                       <div class="invalid-feedback">{{ $message }}</div>
-                                   @enderror
+                            @error('expiry_alert_days')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
                 </div>
@@ -224,6 +212,9 @@
                     <button type="button" class="btn btn-primary btn-sm" onclick="addSupplierRow()">
                         + Add Supplier
                     </button>
+                    @error('suppliers')
+                        <div class="alert alert-danger py-2 mt-2 mb-0">{{ $message }}</div>
+                    @enderror
                 <div class="card_body p-0">
                     <table class="data-table supplier-table w-100" id="supplierTable">
                         <thead>
@@ -297,7 +288,7 @@
                 <div class="card__header"><h2 class="card__title">Status</h2></div>
                 <div class="card__body">
                     <label class="toggle-switch">
-                        <input type="checkbox" name="is_active" value="1" {{ old('is_active', $product->is_active ?? true) ? 'checked' : '' }}>
+                        <input type="checkbox" name="is_active" value="1" {{ old('is_active', $product?->is_active ?? true) ? 'checked' : '' }}>
                         <span class="toggle-switch__slider"></span>
                         <span class="toggle-switch__label">Product is Active</span>
                     </label>
@@ -337,14 +328,24 @@ document.getElementById('expiryDateField')?.addEventListener('change', function(
     if (!val) { bar.style.display = 'none'; return; }
     const days = Math.ceil((new Date(val) - new Date()) / 86400000);
     bar.style.display = '';
+    bar.style.padding = '4px 8px';
+    bar.style.borderRadius = '6px';
+    bar.style.fontSize = '13px';
+    bar.style.marginTop = '6px';
     if (days < 0) {
-        bar.className = 'expiry-status-bar expiry-status-bar--expired';
+        bar.style.background = '#fef2f2';
+        bar.style.color = '#dc2626';
+        bar.style.border = '1px solid #fecaca';
         bar.innerHTML = `⚠️ This product has already expired ${Math.abs(days)} day(s) ago.`;
     } else if (days <= 30) {
-        bar.className = 'expiry-status-bar expiry-status-bar--soon';
+        bar.style.background = '#fffbeb';
+        bar.style.color = '#d97706';
+        bar.style.border = '1px solid #fde68a';
         bar.innerHTML = `🕐 Expiring in <strong>${days}</strong> day(s). Consider replenishment.`;
     } else {
-        bar.className = 'expiry-status-bar expiry-status-bar--ok';
+        bar.style.background = '#f0fdf4';
+        bar.style.color = '#16a34a';
+        bar.style.border = '1px solid #bbf7d0';
         bar.innerHTML = `✅ Valid for <strong>${days}</strong> more day(s).`;
     }
 });
@@ -391,9 +392,36 @@ function removeSupplierRow(btn) {
 }
 
 // ── Margin preview ────────────────────────────────────────────────────────────
+function updateMargin(i) {
+    updateMarginPreview();
+}
 
-
-document.querySelector('[name="sale_price"]')?.addEventListener('input', updateMarginPreview);
+function updateMarginPreview() {
+    const salePrice = parseFloat(document.querySelector('[name="sale_price"]')?.value) || 0;
+    const prices = document.querySelectorAll('.supplier-price');
+    let lowestCost = Infinity;
+    prices.forEach(inp => {
+        const v = parseFloat(inp.value);
+        if (v > 0 && v < lowestCost) lowestCost = v;
+    });
+    const cost = lowestCost === Infinity ? 0 : lowestCost;
+    const margin = salePrice - cost;
+    let el = document.getElementById('marginPreview');
+    if (!el) {
+        el = document.createElement('div');
+        el.id = 'marginPreview';
+        el.style.cssText = 'margin-top:8px;font-size:13px;';
+        const salePriceField = document.querySelector('[name="sale_price"]');
+        salePriceField?.closest('.col-3')?.after(el);
+    }
+    if (salePrice > 0 && cost > 0) {
+        const pct = ((margin / salePrice) * 100).toFixed(1);
+        el.innerHTML = `Margin: <strong>Rs. ${margin.toFixed(2)}</strong> (${pct}%)`;
+        el.style.color = margin >= 0 ? 'var(--bs-success)' : 'var(--bs-danger)';
+    } else {
+        el.innerHTML = '';
+    }
+}
 updateMarginPreview();
 </script>
 @endpush

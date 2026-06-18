@@ -34,10 +34,13 @@ class ProductController extends Controller
                 'units.name as unit',
                 'products.active',
                 'products.price',
+                'products.purchase_price',
+                'products.sale_price',
 
                 //Multiple Suppliers
                 DB::raw('GROUP_CONCAT(suppliers.first_name," ",suppliers.last_name) as suppliers'),
             )
+            ->whereNull('products.deleted_at')
             ->groupBy('products.id')->get();
             // dd($products);
 
@@ -79,7 +82,9 @@ public function show(int $id)
     ->leftJoin('categories', 'products.category_id', '=', 'categories.id')
     ->leftJoin('units', 'products.unit_id', '=', 'units.id')
     ->select('products.*', 'categories.name as category', 'units.name as unit')
-    ->where('products.id', $id)->first();
+    ->where('products.id', $id)
+    ->whereNull('products.deleted_at')
+    ->first();
 
     $batches = DB::table('product_batches')
         ->where('product_id', $id)
@@ -107,7 +112,8 @@ public function show(int $id)
         $categories = Category::all();
         $units = Unit::all();
         $suppliers = Supplier::all();
-        return view('product.create',compact('categories','units','suppliers'));
+        $product = null;
+        return view('product.create',compact('product','categories','units','suppliers'));
     }
 
 
@@ -119,22 +125,21 @@ public function show(int $id)
                 'category'      => 'required',
                 'unit'          => 'required',
                 'sale_price'    => 'required|numeric',
-                'opening_stock' => 'nullable|numeric',
-                'minimum_quantity' => 'required|numeric',
-                'has_expiry'    => 'nullable',
-                'notes'         => 'nullable|string',
+                'opening_stock' => 'nullable|numeric|min:0',
+                'minimum_quantity' => 'required|numeric|min:0',
+                'has_expiry'          => 'nullable',
+                'expiry_alert_days'    => 'required_if:has_expiry,1|integer|min:0',
+                'notes'               => 'nullable|string',
 
                 // batch fields
-                'batch_no'          => 'nullable|string',
+                'batch_number'      => 'nullable|string',
                 'expiry_date'       => 'nullable|date',
-                'quantity'          => 'nullable|integer|min:0',
-                'purchase_price'    => 'nullable|numeric',
-                'selling_price'     => 'nullable|numeric',
+                'purchase_price'    => 'nullable|numeric|min:0',
 
                 // supplier fields
-                'supplier_id'       => 'nullable|array',
-                'supplier_id.*'     => 'exists:suppliers,id',
-                'supplier_price'    => 'nullable|array',
+                'suppliers'                => 'required|array|min:1',
+                'suppliers.*.supplier_id'  => 'required|exists:suppliers,id',
+                'suppliers.*.unit_price'   => 'required|numeric|min:0',
             ]);
             
 
@@ -142,35 +147,41 @@ public function show(int $id)
 
             try{
                 $product = DB::table('products')->insertGetId([
-                    'name'         => $request->product_name,
-                    'sku'          => $request->sku,
-                    'category_id'  => $request->category,
-                    'unit_id'      => $request->unit,
-                    'price'        => $request->sale_price,
-                    'alert_quantity' => $request->minimum_quantity,
-                    'is_expiry'    => $request->has_expiry,
-                    'quantity'     => $request->opening_stock,
-                    'description'  => $request->notes,
-                    'active'       => $request->is_active,
-                    'created_at'   => now(),
-                    'updated_at'   => now(),
+                    'name'            => $request->product_name,
+                    'sku'             => $request->sku,
+                    'category_id'     => $request->category,
+                    'unit_id'         => $request->unit,
+                    'price'           => $request->sale_price,
+                    'purchase_price'  => $request->purchase_price,
+                    'sale_price'      => $request->sale_price,
+                    'alert_quantity'  => $request->minimum_quantity,
+                    'is_expiry'       => $request->has_expiry ? 1 : 0,
+                    'expiry_alert_days' => $request->expiry_alert_days ?? 0,
+                    'quantity'        => $request->opening_stock ?? 0,
+                    'description'     => $request->notes,
+                    'active'          => $request->is_active ? 1 : 0,
+                    'created_at'      => now(),
+                    'updated_at'      => now(),
                 ]);
                 
 
                 DB::table('product_batches')->insert([
                     'product_id'   => $product,
-                    'batch_number'     => $request->batch_number,
-                    'expiry_date'  => $request->expiry_date,
-                    'quantity'     => $request->opening_stock,
-                    'cost' => $request->purchase_price,
+                    'batch_number' => $request->batch_number ?? 'BATCH-' . strtoupper(substr(md5(uniqid()), 0, 8)),
+                    'expiry_date'  => $request->has_expiry ? $request->expiry_date : null,
+                    'quantity'     => $request->opening_stock ?? 0,
+                    'cost'         => $request->purchase_price ?? 0,
+                    'created_at'   => now(),
+                    'updated_at'   => now(),
                 ]);
                 
                 if($request->suppliers){
-                    foreach($request->suppliers as $supplier){
+                    foreach($request->suppliers as $i => $supplier){
                         DB::table('product_suppliers')->insert([
                             'product_id'   => $product,
                             'supplier_id'  => $supplier['supplier_id'],
-                            'cost' => $supplier['unit_price'],
+                            'cost'         => $supplier['unit_price'] ?? 0,
+                            'is_preferred' => $request->preferred_supplier == $i ? 1 : 0,
                         ]);
                     }
                     
@@ -182,9 +193,7 @@ public function show(int $id)
                 return redirect()->route('product.index')->with('success','Product created successfully');
             }catch(\Exception $e){
                 DB::rollBack();
-                return response()->json([
-                    'error' => $e->getMessage()
-                ]);
+                return redirect()->back()->withInput()->with('error', $e->getMessage());
             }
     }
 
@@ -202,61 +211,74 @@ public function show(int $id)
     public function update(Request $request,int $id){
         $request->validate([
                 'product_name'  => 'required|string|min:3|max:255',
-                'sku'           => 'required|unique:products,sku',
+                'sku'           => 'required|unique:products,sku,' . $id,
                 'category'      => 'required',
                 'unit'          => 'required',
                 'sale_price'    => 'required|numeric',
-                'opening_stock' => 'nullable|numeric',
-                'minimum_quantity' => 'required|numeric',
-                'has_expiry'    => 'nullable',
-                'notes'         => 'nullable|string',
+                'opening_stock' => 'nullable|numeric|min:0',
+                'minimum_quantity' => 'required|numeric|min:0',
+                'has_expiry'          => 'nullable',
+                'expiry_alert_days'    => 'required_if:has_expiry,1|integer|min:0',
+                'notes'               => 'nullable|string',
 
                 // batch fields
-                'batch_no'          => 'nullable|string',
+                'batch_number'      => 'nullable|string',
                 'expiry_date'       => 'nullable|date',
-                'quantity'          => 'nullable|integer|min:0',
-                'purchase_price'    => 'nullable|numeric',
-                'selling_price'     => 'nullable|numeric',
+                'purchase_price'    => 'nullable|numeric|min:0',
 
                 // supplier fields
-                'supplier_id'       => 'nullable|array',
-                'supplier_id.*'     => 'exists:suppliers,id',
-                'supplier_price'    => 'nullable|array',
+                'suppliers'                => 'required|array|min:1',
+                'suppliers.*.supplier_id'  => 'required|exists:suppliers,id',
+                'suppliers.*.unit_price'   => 'required|numeric|min:0',
             ]);
 
             DB::beginTransaction();
 
  try{
-            // dd('ok');
         $product = Product::findOrFail($id);
         $product->update([
-            'name'         => $request->product_name,
-            'sku'          => $request->sku,
-            'category_id'  => $request->category,
-            'unit_id'      => $request->unit,
-            'price'        => $request->sale_price,
-            'alert_quantity' => $request->minimum_quantity,
-            'is_expiry'    => $request->has_expiry,
-            'quantity'     => $request->opening_stock,
-            'description'  => $request->notes,
-            'active'       => $request->is_active,
-            'updated_at'   => now(),
+            'name'            => $request->product_name,
+            'sku'             => $request->sku,
+            'category_id'     => $request->category,
+            'unit_id'         => $request->unit,
+            'price'           => $request->sale_price,
+            'purchase_price'  => $request->purchase_price,
+            'sale_price'      => $request->sale_price,
+            'alert_quantity'  => $request->minimum_quantity,
+            'is_expiry'       => $request->has_expiry ? 1 : 0,
+            'expiry_alert_days' => $request->expiry_alert_days ?? 0,
+            'quantity'        => $request->opening_stock ?? 0,
+            'description'     => $request->notes,
+            'active'          => $request->is_active ? 1 : 0,
+            'updated_at'      => now(),
         ]);
 
-        $product->batches()->update([
-            'batch_number'     => $request->batch_number,
-            'expiry_date'  => $request->expiry_date,
-            'quantity'     => $request->opening_stock,
-            'cost' => $request->purchase_price,
-        ]);
+        $openingStock = $request->opening_stock ?? 0;
+        $batch = $product->batches()->first();
+        if ($batch) {
+            $batch->update([
+                'batch_number' => $request->batch_number ?? $batch->batch_number,
+                'expiry_date'  => $request->has_expiry ? $request->expiry_date : null,
+                'quantity'     => $openingStock,
+                'cost'         => $request->purchase_price ?? 0,
+            ]);
+        } elseif ($openingStock > 0) {
+            $product->batches()->create([
+                'batch_number' => $request->batch_number ?? 'BATCH-' . strtoupper(substr(md5(uniqid()), 0, 8)),
+                'expiry_date'  => $request->has_expiry ? $request->expiry_date : null,
+                'quantity'     => $openingStock,
+                'cost'         => $request->purchase_price ?? 0,
+            ]);
+        }
 
-        $product->suppliers()->delete();
+        $product->suppliers()->detach();
         if($request->suppliers){
-            foreach($request->suppliers as $supplier){
+            foreach($request->suppliers as $i => $supplier){
                 DB::table('product_suppliers')->insert([
                     'product_id'   => $product->id,
                     'supplier_id'  => $supplier['supplier_id'],
-                    'cost' => $supplier['unit_price'],
+                    'cost'         => $supplier['unit_price'] ?? 0,
+                    'is_preferred' => $request->preferred_supplier == $i ? 1 : 0,
                 ]);
             }
         }
@@ -265,36 +287,24 @@ public function show(int $id)
                 return redirect()->route('product.index')->with('success','Product Updated successfully');
             }catch(\Exception $e){
                 DB::rollBack();
-                return response()->json([
-                    'error' => $e->getMessage()
-                ]);
+                return redirect()->back()->withInput()->with('error', $e->getMessage());
             }
 
     }
 
     public function distroy(int $id){
-        DB::beginTransaction();
+        try {
+            $product = Product::findOrFail($id);
+            $product->delete();
 
-    try {
-        $product = Product::findOrFail($id);
-
-        $product->batches()->delete();
-        $product->suppliers()->detach();
-        $product->delete();
-
-        DB::commit();
-
-        return response()->json([
-            'success' => 'Product deleted successfully.'
-        ]);
-
-    } catch (\Exception $e) {
-        DB::rollBack();
-
-        return response()->json([
-            'error' => $e->getMessage()
-        ], 500);
-    }
+            return response()->json([
+                'success' => 'Product deleted successfully.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
 }

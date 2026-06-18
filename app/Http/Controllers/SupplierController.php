@@ -64,7 +64,7 @@ class SupplierController extends Controller
             'city'=>['string', 'max:255','min:3'],
             'province'=>['string', 'max:255','min:3'],
             'postal_code'=>['string', 'max:255','min:3'],
-            'opeaning_balance'=>['numeric', 'max:255','min:3'],
+            'opening_balance'=>['required', 'numeric', 'min:1000'],
             'currency'=>['string', 'max:255','min:3'],  
         ]);
 
@@ -105,7 +105,7 @@ class SupplierController extends Controller
             'city'=>['string', 'max:255','min:3'],
             'province'=>['string', 'max:255','min:3'],
             'postal_code'=>['string', 'max:255','min:3'],
-            'opeaning_balance'=>['numeric', 'max:255','min:3'],
+            'opening_balance'=>['required', 'numeric', 'min:1000'],
             'currency'=>['string', 'max:255','min:3'],  
         ]);
 

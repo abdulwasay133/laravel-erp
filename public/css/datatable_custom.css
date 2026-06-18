@@ -7,6 +7,9 @@
         font-size: 13px;
         width: 220px;
     }
+    div.dataTables_wrapper div.dataTables_length .select2-container {
+        min-width: 100px;
+    }
     div.dataTables_wrapper div.dataTables_length select {
         border: 1px solid #e2e8f0;
         border-radius: 8px;

@@ -151,7 +151,7 @@ $(function () {
 
         // ── dom: B = Buttons, l = length, f = filter/search ──
         // ── r = processing, t = table, i = info, p = pagination ──
-       dom: '<"d-flex justify-content-between align-items-center mb-3"Blf>rtip',
+       dom: '<"d-flex justify-content-between align-items-center mb-3"lBf>rtip',
 
         buttons: [
             {

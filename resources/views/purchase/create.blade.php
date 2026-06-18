@@ -35,7 +35,7 @@
                             <label class="form-label fw-600">Reference / Invoice #</label>
                             <input type="text" name="reference"
                                    class="form-control @error('reference') is-invalid @enderror"
-                                   value="{{ old('reference', $purchase->reference ?? '') }}"
+                                   value="{{ old('reference', $purchase->ref_no ?? '') }}"
                                    placeholder="e.g. INV-2024-001">
                             @error('reference')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -91,9 +91,22 @@
                 </div>
                 <div class="card-body">
 
-                    <button type="button" class="btn btn-primary btn-sm mb-3" onclick="addItemRow()">
-                        + Add Item
-                    </button>
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <div class="input-group" style="max-width: 320px;">
+                            <span class="input-group-text bg-white"><i class="bi bi-upc-scan"></i></span>
+                            <input type="text" id="barcodeInput" class="form-control"
+                                   placeholder="Scan or type barcode / SKU"
+                                   autocomplete="off">
+                            <button class="btn btn-outline-secondary" type="button"
+                                    onclick="document.getElementById('barcodeInput').value='';document.getElementById('barcodeInput').focus();">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+                        <span class="text-muted small">or</span>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="addItemRow()">
+                            + Add Item
+                        </button>
+                    </div>
 
                     <div class="card_body p-0">
                         <table class="data-table w-100" id="itemsTable">
@@ -125,11 +138,12 @@
                                     <td>
                                         <select name="items[{{ $idx }}][product_id]"
                                                 class="form-control form-control--sm product-select"
-                                                onchange="fillUnitCost({{ $idx }}, this)" required>
+                                                onchange="fillUnitCost({{ $idx }}, this); toggleExpiryFields({{ $idx }}, this)" required>
                                             <option value="">Select Product</option>
                                             @foreach($products as $product)
                                                 <option value="{{ $product->id }}"
                                                     data-cost="{{ $product->purchase_price }}"
+                                                    data-is-expiry="{{ $product->is_expiry }}"
                                                     {{ ($item['product_id'] ?? '') == $product->id ? 'selected' : '' }}>
                                                     {{ $product->name }}
                                                 </option>
@@ -149,13 +163,13 @@
                                                placeholder="0.00" required
                                                oninput="recalcRow({{ $idx }})">
                                     </td>
-                                    <td>
+                                    <td class="batch-cell">
                                         <input type="text" name="items[{{ $idx }}][batch_number]"
                                                class="form-control form-control--sm"
                                                value="{{ $item['batch_number'] ?? '' }}"
                                                placeholder="Batch #">
                                     </td>
-                                    <td>
+                                    <td class="expiry-cell">
                                         <input type="date" name="items[{{ $idx }}][expiry_date]"
                                                class="form-control form-control--sm"
                                                value="{{ $item['expiry_date'] ?? '' }}">
@@ -199,7 +213,7 @@
                     <div class="row g-3">
 
                         {{-- Payment Method --}}
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label class="form-label fw-600">Payment Method</label>
                             <select name="payment_method" id="paymentMethodSelect"
                                     class="form-select @error('payment_method') is-invalid @enderror"
@@ -213,8 +227,22 @@
                             @enderror
                         </div>
 
+                        {{-- Status --}}
+                        <div class="col-md-2">
+                            <label class="form-label fw-600">Status</label>
+                            <select name="status"
+                                    class="form-select @error('status') is-invalid @enderror">
+                                <option value="pending"   {{ old('status', $purchase->status ?? '') == 'pending'   ? 'selected' : '' }}>Pending</option>
+                                <option value="received"  {{ old('status', $purchase->status ?? 'received') == 'received'  ? 'selected' : '' }}>Completed</option>
+                                <option value="cancelled" {{ old('status', $purchase->status ?? '') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                            </select>
+                            @error('status')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
                         {{-- Bank Account (shown only when Bank Transfer is selected) --}}
-                        <div class="col-md-3" id="bankAccountWrapper" style="display: none;">
+                        <div class="col-md-2" id="bankAccountWrapper" style="display: none;">
                             <label class="form-label fw-600">Bank Account</label>
                             <select name="bank_account_id" id="bankAccountSelect"
                                     class="form-select @error('bank_account_id') is-invalid @enderror">
@@ -322,6 +350,16 @@
         {{-- RIGHT COLUMN --}}
         <div class="form-layout__sidebar">
 
+            {{-- Shortcuts Hint --}}
+            <div class="card p-3 mt-2">
+                <div class="card__header"><h2 class="card__title" style="font-size:13px;">Shortcuts</h2></div>
+                <div class="card__body">
+                    <div style="font-size:12px; line-height:2;">
+                        <kbd>F2</kbd> Add Item &middot; <kbd>F8</kbd> Remove Last
+                    </div>
+                </div>
+            </div>
+
             {{-- Buttons --}}
             <div class="d-flex gap-2 justify-content-end mt-3">
                 <a href="{{ route('purchase.index') }}" class="btn btn-outline-secondary">
@@ -389,26 +427,65 @@ document.addEventListener('DOMContentLoaded', function () {
         handlePaymentMethodChange('bank');
     }
 
+    // Load products if supplier is pre-selected (edit mode)
+    const supplierSelect = document.getElementById('supplierSelect');
+    if (supplierSelect.value) {
+        loadProducts(supplierSelect.value);
+    }
+
     // Recalc all existing rows on load
     document.querySelectorAll('.item-row').forEach(row => {
         recalcRow(row.dataset.index);
     });
+
+    // Toggle expiry fields for existing rows (products already loaded via loadProducts callback)
+    document.querySelectorAll('.item-row').forEach(row => {
+        const sel = row.querySelector('.product-select');
+        const idx = row.dataset.index;
+        if (sel && sel.value && idx !== undefined) {
+            toggleExpiryFields(parseInt(idx), sel);
+        }
+    });
 });
+
+const supplierProductsUrlTemplate = '{{ route("supplier.products", ["id" => ":id"]) }}';
+let productsCache = [];
+
+// ── Populate a single select from cache ──────────────────────────────────────
+function populateSelectFromCache(select) {
+    if (!productsCache.length) return;
+    const currentVal = select.value;
+    productsCache.forEach(p => {
+        const selected = p.id == currentVal ? 'selected' : '';
+        select.innerHTML += `<option value="${p.id}" data-cost="${p.purchase_price}" data-is-expiry="${p.is_expiry}" ${selected}>${p.name}</option>`;
+    });
+}
 
 // ── Load Products by Supplier ────────────────────────────────────────────────
 function loadProducts(id) {
     if (!id) return;
     $.ajax({
-        url: 'supplier/' + id + '/products',
+        url: supplierProductsUrlTemplate.replace(':id', id),
         type: 'GET',
         success: function (products) {
+            productsCache = products;
             document.querySelectorAll('.product-select').forEach(select => {
                 const currentVal = select.value;
                 select.innerHTML = '<option value="">Select Product</option>';
                 products.forEach(p => {
                     const selected = p.id == currentVal ? 'selected' : '';
-                    select.innerHTML += `<option value="${p.id}" data-cost="${p.purchase_price}" ${selected}>${p.name}</option>`;
+                    select.innerHTML += `<option value="${p.id}" data-cost="${p.purchase_price}" data-is-expiry="${p.is_expiry}" ${selected}>${p.name}</option>`;
                 });
+                // Re-init Select2 so new options are reflected in the UI
+                if (window.initSelect2) initSelect2($(select));
+            });
+            // Toggle expiry fields for rows that already have a product selected
+            document.querySelectorAll('.item-row').forEach(row => {
+                const sel = row.querySelector('.product-select');
+                const idx = row.dataset.index;
+                if (sel && sel.value && idx !== undefined) {
+                    toggleExpiryFields(parseInt(idx), sel);
+                }
             });
         }
     });
@@ -416,9 +493,6 @@ function loadProducts(id) {
 
 // ── Add Item Row ─────────────────────────────────────────────────────────────
 function addItemRow() {
-    const supplierId = document.querySelector('[name="supplier_id"]').value;
-    if (supplierId) loadProducts(supplierId);
-
     document.getElementById('noItemsRow')?.remove();
     const i = itemIndex++;
     const row = document.createElement('tr');
@@ -427,7 +501,7 @@ function addItemRow() {
     row.innerHTML = `
         <td>
             <select name="items[${i}][product_id]" class="form-control form-control--sm product-select"
-                    onchange="fillUnitCost(${i}, this)" required>
+                    onchange="fillUnitCost(${i}, this); toggleExpiryFields(${i}, this)" required>
                 <option value="">Select Product</option>
             </select>
         </td>
@@ -441,12 +515,12 @@ function addItemRow() {
                    class="form-control form-control--sm item-cost"
                    min="0" step="0.01" placeholder="0.00" required oninput="recalcRow(${i})">
         </td>
-        <td style="max-width: 130px;">
+        <td style="max-width: 130px;" class="batch-cell">
             <input type="text" name="items[${i}][batch_number]"
                    class="form-control form-control--sm"
                    placeholder="Batch #">
         </td>
-        <td>
+        <td class="expiry-cell">
             <input type="date" name="items[${i}][expiry_date]"
                    class="form-control form-control--sm">
         </td>
@@ -455,6 +529,9 @@ function addItemRow() {
             <button type="button" class="btn btn-danger btn-sm" onclick="removeItemRow(this)">✕</button>
         </td>
     `;
+    // Populate options from cache to avoid an AJAX call that would close Select2
+    const select = row.querySelector('.product-select');
+    if (select) populateSelectFromCache(select);
     document.getElementById('itemRows').appendChild(row);
 }
 
@@ -481,6 +558,31 @@ function fillUnitCost(idx, select) {
     row.querySelector('.item-cost').value = cost;
     recalcRow(idx);
 }
+
+// ── Toggle batch/expiry fields based on product expiry tracking ─────────────
+function toggleExpiryFields(idx, select) {
+    const row = document.querySelector(`.item-row[data-index="${idx}"]`);
+    if (!row) return;
+    const opt = select.options[select.selectedIndex];
+    // Disable fields when product does NOT track expiry (always visible)
+    const isExpiry = opt && opt.value && opt.dataset.isExpiry ? parseInt(opt.dataset.isExpiry) : 1;
+    const batchInput = row.querySelector('.batch-cell input');
+    const expiryInput = row.querySelector('.expiry-cell input');
+    if (batchInput) batchInput.disabled = !isExpiry;
+    if (expiryInput) expiryInput.disabled = !isExpiry;
+}
+
+// ── Alert when user tries to edit disabled batch/expiry fields ────────────
+$(document).on('focus', '.batch-cell input:disabled, .expiry-cell input:disabled', function () {
+    this.blur();
+    Swal.fire({
+        icon: 'info',
+        title: 'Expiry Tracking Disabled',
+        text: 'Please enable "Track Expiry" for this product in the product settings to add batch number and expiry date.',
+        timer: 5000,
+        showConfirmButton: true,
+    });
+});
 
 // ── Recalculate single row subtotal ─────────────────────────────────────────
 function recalcRow(idx) {
@@ -546,6 +648,104 @@ function updateTotals() {
     document.getElementById('hiddenTotal').value    = grandTotal.toFixed(2);
     document.getElementById('hiddenDue').value      = due.toFixed(2);
 }
+
+// ── Keyboard Shortcuts ─────────────────────────────────────────────────────
+document.addEventListener('keydown', function (e) {
+    const tag = document.activeElement?.tagName?.toLowerCase();
+    const isInput = tag === 'input' || tag === 'textarea' || tag === 'select';
+    const isContentEditable = document.activeElement?.isContentEditable;
+
+    // F2 → Add Item Row (only when not typing in a field)
+    if (e.key === 'F2' && !isInput && !isContentEditable) {
+        e.preventDefault();
+        addItemRow();
+        const rows = document.querySelectorAll('.item-row');
+        if (rows.length) {
+            const lastSelect = rows[rows.length - 1].querySelector('.product-select');
+            if (lastSelect) {
+                lastSelect.focus();
+                setTimeout(function () {
+                    try { $(lastSelect).select2('open'); } catch (_) {}
+                }, 100);
+            }
+        }
+    }
+
+    // F8 → Remove last item row (only when not typing in a field)
+    if (e.key === 'F8' && !isInput && !isContentEditable) {
+        e.preventDefault();
+        const rows = document.querySelectorAll('.item-row');
+        if (rows.length) removeItemRow(rows[rows.length - 1].querySelector('button'));
+    }
+});
+
+// ── Barcode Scanning ────────────────────────────────────────────────────────
+const barcodeLookupUrl = '{{ route("purchase.product.lookup", ["barcode" => ":barcode"]) }}';
+const barcodeInput = document.getElementById('barcodeInput');
+
+barcodeInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        const q = this.value.trim();
+        if (!q) return;
+
+        const url = barcodeLookupUrl.replace(':barcode', encodeURIComponent(q));
+        $.get(url, function (res) {
+            if (res.found && res.product) {
+                const p = res.product;
+                document.getElementById('noItemsRow')?.remove();
+                const i = itemIndex++;
+                const row = document.createElement('tr');
+                row.className = 'item-row';
+                row.dataset.index = i;
+                row.innerHTML = `
+                    <td>
+                        <select name="items[${i}][product_id]" class="form-control form-control--sm product-select"
+                                onchange="fillUnitCost(${i}, this); toggleExpiryFields(${i}, this)" required>
+                            <option value="">Select Product</option>
+                            <option value="${p.id}" data-cost="${p.purchase_price || 0}" data-is-expiry="${p.is_expiry || 0}" selected>${p.name}</option>
+                        </select>
+                    </td>
+                    <td style="max-width: 100px;">
+                        <input type="number" name="items[${i}][quantity]"
+                               class="form-control form-control--sm item-qty"
+                               value="1" min="1" required oninput="recalcRow(${i})">
+                    </td>
+                    <td style="max-width: 130px;">
+                        <input type="number" name="items[${i}][unit_cost]"
+                               class="form-control form-control--sm item-cost"
+                               value="${p.purchase_price || ''}" min="0" step="0.01" placeholder="0.00" required oninput="recalcRow(${i})">
+                    </td>
+        <td style="max-width: 130px;" class="batch-cell">
+            <input type="text" name="items[${i}][batch_number]"
+                   class="form-control form-control--sm" placeholder="Batch #">
+        </td>
+        <td class="expiry-cell">
+            <input type="date" name="items[${i}][expiry_date]"
+                   class="form-control form-control--sm">
+        </td>
+                    <td><span class="item-subtotal fw-600">0.00</span></td>
+                    <td>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeItemRow(this)">✕</button>
+                    </td>
+                `;
+                document.getElementById('itemRows').appendChild(row);
+                const newSelect = row.querySelector('.product-select');
+                if (newSelect) {
+                    $(newSelect).trigger('change');
+                    fillUnitCost(i, newSelect);
+                }
+                barcodeInput.value = '';
+                barcodeInput.focus();
+            } else {
+                Swal.fire({ icon: 'warning', title: 'Not Found', text: res.message || 'No product matches that barcode/SKU.', timer: 2000, showConfirmButton: false });
+                barcodeInput.select();
+            }
+        }).fail(function () {
+            Swal.fire({ icon: 'error', title: 'Error', text: 'Could not look up barcode. Please try again.', timer: 2000, showConfirmButton: false });
+        });
+    }
+});
 </script>
 @endpush
 

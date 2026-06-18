@@ -1,0 +1,258 @@
+@extends('layouts.app')
+
+@section('title', 'New Sale Return')
+@section('page-title', 'Customer Sale Return')
+
+@section('breadcrumb')
+    <li class="breadcrumb-item"><a href="{{ route('sale-returns.index') }}" class="text-decoration-none text-muted">Sale Returns</a></li>
+    <li class="breadcrumb-item active">New Return</li>
+@endsection
+
+@section('content')
+<form method="POST" action="{{ route('sale-returns.store') }}" id="saleReturnForm">
+    @csrf
+    <input type="hidden" name="sale_id" id="saleId" value="{{ old('sale_id') }}">
+
+    <div class="card mb-3">
+        <div class="card-header">
+            <h6 class="card-title mb-0">Find Invoice</h6>
+            <p class="card-subtitle mb-0">Enter invoice number to load sale details</p>
+        </div>
+        <div class="card-body">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label">Invoice Number <span class="text-danger">*</span></label>
+                    <input type="text" id="invoiceLookup" class="form-control" placeholder="e.g. INV-000001">
+                </div>
+                <div class="col-md-3">
+                    <button type="button" id="lookupBtn" class="btn btn-primary">
+                        <i class="bi bi-search me-1"></i> Find Invoice
+                    </button>
+                </div>
+            </div>
+            <div id="lookupError" class="alert alert-danger mt-3 d-none"></div>
+        </div>
+    </div>
+
+    <div id="invoiceDetails" class="d-none">
+        <div class="card mb-3">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Invoice Details</h6>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3"><small class="text-muted">Invoice No</small><div class="fw-semibold" id="detailInvoiceNo">-</div></div>
+                    <div class="col-md-3"><small class="text-muted">Sale Date</small><div class="fw-semibold" id="detailSaleDate">-</div></div>
+                    <div class="col-md-3"><small class="text-muted">Customer</small><div class="fw-semibold" id="detailCustomer">-</div></div>
+                    <div class="col-md-3"><small class="text-muted">Status</small><div class="fw-semibold" id="detailStatus">-</div></div>
+                    <div class="col-md-3"><small class="text-muted">Total Amount</small><div class="fw-semibold" id="detailTotal">0.00</div></div>
+                    <div class="col-md-3"><small class="text-muted">Paid Amount</small><div class="fw-semibold text-success" id="detailPaid">0.00</div></div>
+                    <div class="col-md-3"><small class="text-muted">Balance / Due</small><div class="fw-semibold text-danger" id="detailBalance">0.00</div></div>
+                    <div class="col-md-3"><small class="text-muted">Discount</small><div class="fw-semibold" id="detailDiscount">0.00</div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Return Items</h6>
+                <p class="card-subtitle mb-0">Select return quantity (max = remaining quantity)</p>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Batch</th>
+                                <th class="text-end">Sale Qty</th>
+                                <th class="text-end">Returned</th>
+                                <th class="text-end">Remaining</th>
+                                <th class="text-end">Unit Price</th>
+                                <th class="text-end">Discount</th>
+                                <th class="text-end">Line Total</th>
+                                <th class="text-end">Return Qty</th>
+                                <th class="text-end">Return Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody id="returnItemsBody"></tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="9" class="text-end">Total Return Amount</th>
+                                <th class="text-end" id="totalReturnAmount">0.00</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Return Information</h6>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Return No</label>
+                        <input type="text" name="return_no" class="form-control" value="{{ $returnNo }}" readonly>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Return Date <span class="text-danger">*</span></label>
+                        <input type="date" name="return_date" class="form-control" value="{{ date('Y-m-d') }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Return Reason <span class="text-danger">*</span></label>
+                        <input type="text" name="reason" class="form-control" placeholder="Reason for return" required value="{{ old('reason') }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Refund Method</label>
+                        <select name="refund_method" id="refundMethod" class="form-select">
+                            <option value="none">Credit Only (No Cash Refund)</option>
+                            <option value="cash">Cash Refund</option>
+                            <option value="bank_transfer">Bank Refund</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3" id="bankAccountWrap" style="display:none;">
+                        <label class="form-label">Bank Account</label>
+                        <select name="bank_account_id" class="form-select">
+                            <option value="">Select Bank</option>
+                            @foreach($bankAccounts as $bank)
+                                <option value="{{ $bank->id }}">{{ $bank->bank_name }} - {{ $bank->account_number }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Notes</label>
+                        <textarea name="notes" class="form-control" rows="1">{{ old('notes') }}</textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-success" id="submitBtn">
+                <i class="bi bi-check-circle me-1"></i> Process Return
+            </button>
+            <a href="{{ route('sale-returns.index') }}" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+    </div>
+</form>
+@endsection
+
+@push('scripts')
+<script>
+$(function () {
+    let saleItems = [];
+
+    function formatAmount(v) {
+        return parseFloat(v || 0).toFixed(2);
+    }
+
+    function renderItems(items) {
+        saleItems = items;
+        const body = $('#returnItemsBody').empty();
+        let itemIndex = 0;
+
+        items.forEach(function (item) {
+            if (item.remaining_quantity <= 0) return;
+
+            const unitLine = item.sale_quantity > 0 ? item.line_total / item.sale_quantity : 0;
+            const row = `
+                <tr data-index="${itemIndex}">
+                    <td>${item.product_name}</td>
+                    <td>${item.batch_number}</td>
+                    <td class="text-end">${item.sale_quantity}</td>
+                    <td class="text-end">${item.returned_quantity}</td>
+                    <td class="text-end"><span class="badge bg-info">${item.remaining_quantity}</span></td>
+                    <td class="text-end">${formatAmount(item.unit_price)}</td>
+                    <td class="text-end">${formatAmount(item.discount_amount)}</td>
+                    <td class="text-end">${formatAmount(item.line_total)}</td>
+                    <td class="text-end">
+                        <input type="hidden" name="items[${itemIndex}][sale_item_id]" value="${item.sale_item_id}">
+                        <input type="number" name="items[${itemIndex}][return_quantity]" class="form-control form-control-sm return-qty text-end"
+                               min="0" max="${item.remaining_quantity}" value="0"
+                               data-unit-line="${unitLine}" data-remaining="${item.remaining_quantity}">
+                    </td>
+                    <td class="text-end return-line-total">0.00</td>
+                </tr>`;
+            body.append(row);
+            itemIndex++;
+        });
+
+        updateTotals();
+    }
+
+    function updateTotals() {
+        let total = 0;
+        $('.return-qty').each(function () {
+            const qty = parseInt($(this).val() || 0, 10);
+            const unitLine = parseFloat($(this).data('unit-line') || 0);
+            const lineTotal = qty * unitLine;
+            $(this).closest('tr').find('.return-line-total').text(formatAmount(lineTotal));
+            total += lineTotal;
+        });
+        $('#totalReturnAmount').text(formatAmount(total));
+    }
+
+    $(document).on('input', '.return-qty', function () {
+        const max = parseInt($(this).data('remaining'), 10);
+        let val = parseInt($(this).val() || 0, 10);
+        if (val > max) {
+            val = max;
+            $(this).val(max);
+            alert('Return quantity cannot exceed remaining quantity (' + max + ').');
+        }
+        if (val < 0) {
+            $(this).val(0);
+        }
+        updateTotals();
+    });
+
+    $('#lookupBtn').on('click', function () {
+        const invoiceNo = $('#invoiceLookup').val().trim();
+        if (!invoiceNo) {
+            alert('Please enter an invoice number.');
+            return;
+        }
+
+        $.get('{{ route('sale-returns.lookup') }}', { invoice_no: invoiceNo })
+            .done(function (response) {
+                $('#lookupError').addClass('d-none');
+                $('#invoiceDetails').removeClass('d-none');
+                $('#saleId').val(response.sale.id);
+
+                $('#detailInvoiceNo').text(response.sale.invoice_no);
+                $('#detailSaleDate').text(response.sale.sale_date);
+                $('#detailCustomer').text(response.sale.customer_name);
+                $('#detailStatus').text(response.sale.status);
+                $('#detailTotal').text(formatAmount(response.sale.total_amount));
+                $('#detailPaid').text(formatAmount(response.sale.paid_amount));
+                $('#detailBalance').text(formatAmount(response.sale.balance));
+                $('#detailDiscount').text(formatAmount(response.sale.discount_amount));
+
+                renderItems(response.items);
+            })
+            .fail(function (xhr) {
+                $('#invoiceDetails').addClass('d-none');
+                $('#lookupError').removeClass('d-none').text(xhr.responseJSON?.message || 'Invoice not found.');
+            });
+    });
+
+    $('#refundMethod').on('change', function () {
+        $('#bankAccountWrap').toggle($(this).val() === 'bank_transfer');
+    });
+
+    $('#saleReturnForm').on('submit', function (e) {
+        let hasQty = false;
+        $('.return-qty').each(function () {
+            if (parseInt($(this).val() || 0, 10) > 0) hasQty = true;
+        });
+        if (!hasQty) {
+            e.preventDefault();
+            alert('Please enter return quantity for at least one item.');
+        }
+    });
+});
+</script>
+@endpush
