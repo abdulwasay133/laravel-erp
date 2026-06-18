@@ -258,7 +258,8 @@ class PurchaseController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withInput()->with('error', $e->getMessage());
+            \Log::error('Purchase operation failed: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'Something went wrong while processing your request. Please check your input and try again.');
         }
 
         return redirect()->route('purchase.show', $purchase->id)
@@ -571,7 +572,8 @@ class PurchaseController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withInput()->with('error', $e->getMessage());
+            \Log::error('Purchase operation failed: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'Something went wrong while processing your request. Please check your input and try again.');
         }
 
         return redirect()->route('purchase.show', $purchase->id)
@@ -648,7 +650,8 @@ class PurchaseController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', $e->getMessage());
+            \Log::error('Purchase delete failed: ' . $e->getMessage());
+            return back()->with('error', 'Something went wrong while deleting the purchase. Please try again.');
         }
 
         return redirect()->route('purchase.index')->with('success', 'Purchase deleted successfully.');
