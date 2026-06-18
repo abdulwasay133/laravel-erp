@@ -164,14 +164,17 @@ class PurchaseController extends Controller
 
             foreach ($validated['items'] as $item) {
                 $lineSubtotal = $item['quantity'] * $item['unit_cost'];
+                $batchNumber = !empty($item['batch_number']) ? $item['batch_number'] : null;
+                $expiryDate = !empty($item['expiry_date']) ? $item['expiry_date'] : null;
+
                 PurchaseItem::create([
                     'purchase_id' => $purchase->id,
                     'product_id' => $item['product_id'],
                     'quantity' => $item['quantity'],
                     'unit_cost' => $item['unit_cost'],
                     'subtotal' => $lineSubtotal,
-                    'batch_number' => $item['batch_number'] ?? null,
-                    'expiry_date' => $item['expiry_date'] ?? null,
+                    'batch_number' => $batchNumber,
+                    'expiry_date' => $expiryDate,
                 ]);
 
                 $product = Product::find($item['product_id']);
@@ -180,12 +183,12 @@ class PurchaseController extends Controller
                     $product->save();
                 }
 
-                if (!empty($item['batch_number']) || !empty($item['expiry_date'])) {
+                if ($batchNumber || $expiryDate) {
                     $batchQuery = DB::table('product_batches')
                         ->where('product_id', $item['product_id']);
 
-                    if (!empty($item['batch_number'])) {
-                        $batchQuery->where('batch_number', $item['batch_number']);
+                    if ($batchNumber) {
+                        $batchQuery->where('batch_number', $batchNumber);
                     } else {
                         $batchQuery->whereNull('batch_number');
                     }
@@ -197,15 +200,15 @@ class PurchaseController extends Controller
                             ->where('id', $batch->id)
                             ->update([
                                 'quantity' => ($batch->quantity ?? 0) + $item['quantity'],
-                                'expiry_date' => $item['expiry_date'] ?? $batch->expiry_date,
+                                'expiry_date' => $expiryDate ?? $batch->expiry_date,
                                 'cost' => $item['unit_cost'],
                                 'updated_at' => now(),
                             ]);
                     } else {
                         DB::table('product_batches')->insert([
                             'product_id' => $item['product_id'],
-                            'batch_number' => $item['batch_number'] ?? null,
-                            'expiry_date' => $item['expiry_date'] ?? null,
+                            'batch_number' => $batchNumber,
+                            'expiry_date' => $expiryDate,
                             'quantity' => $item['quantity'],
                             'cost' => $item['unit_cost'],
                             'created_at' => now(),
@@ -400,14 +403,17 @@ class PurchaseController extends Controller
 
             foreach ($validated['items'] as $item) {
                 $lineSubtotal = $item['quantity'] * $item['unit_cost'];
+                $batchNumber = !empty($item['batch_number']) ? $item['batch_number'] : null;
+                $expiryDate = !empty($item['expiry_date']) ? $item['expiry_date'] : null;
+
                 PurchaseItem::create([
                     'purchase_id' => $purchase->id,
                     'product_id' => $item['product_id'],
                     'quantity' => $item['quantity'],
                     'unit_cost' => $item['unit_cost'],
                     'subtotal' => $lineSubtotal,
-                    'batch_number' => $item['batch_number'] ?? null,
-                    'expiry_date' => $item['expiry_date'] ?? null,
+                    'batch_number' => $batchNumber,
+                    'expiry_date' => $expiryDate,
                 ]);
 
                 $product = Product::find($item['product_id']);
@@ -416,12 +422,12 @@ class PurchaseController extends Controller
                     $product->save();
                 }
 
-                if (!empty($item['batch_number']) || !empty($item['expiry_date'])) {
+                if ($batchNumber || $expiryDate) {
                     $batchQuery = DB::table('product_batches')
                         ->where('product_id', $item['product_id']);
 
-                    if (!empty($item['batch_number'])) {
-                        $batchQuery->where('batch_number', $item['batch_number']);
+                    if ($batchNumber) {
+                        $batchQuery->where('batch_number', $batchNumber);
                     } else {
                         $batchQuery->whereNull('batch_number');
                     }
@@ -433,15 +439,15 @@ class PurchaseController extends Controller
                             ->where('id', $batch->id)
                             ->update([
                                 'quantity' => ($batch->quantity ?? 0) + $item['quantity'],
-                                'expiry_date' => $item['expiry_date'] ?? $batch->expiry_date,
+                                'expiry_date' => $expiryDate ?? $batch->expiry_date,
                                 'cost' => $item['unit_cost'],
                                 'updated_at' => now(),
                             ]);
                     } else {
                         DB::table('product_batches')->insert([
                             'product_id' => $item['product_id'],
-                            'batch_number' => $item['batch_number'] ?? null,
-                            'expiry_date' => $item['expiry_date'] ?? null,
+                            'batch_number' => $batchNumber,
+                            'expiry_date' => $expiryDate,
                             'quantity' => $item['quantity'],
                             'cost' => $item['unit_cost'],
                             'created_at' => now(),
