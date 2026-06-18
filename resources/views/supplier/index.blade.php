@@ -44,7 +44,7 @@
         <div class="modal-content shadow-lg border-0 rounded-3">
 
             <!-- Header -->
-            <div class="modal-header text-white" style="background-color: #6366f1; !important">
+            <div class="modal-header text-white" style="background-color: #85D1DB; !important">
                 <h5 class="modal-title">
                     <i class="bi bi-person-lines-fill me-2"></i> Supplier Details
                 </h5>

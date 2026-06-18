@@ -1,4 +1,4 @@
-<header id="topbar" class="pt-2">
+<header id="topbar">
     <button class="topbar-toggler" id="sidebarToggle">
         <i class="bi bi-list"></i>
     </button>

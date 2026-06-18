@@ -25,8 +25,8 @@
         .landing-nav .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
         .landing-nav .brand-icon {
             width: 36px; height: 36px; border-radius: 10px;
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
-            color: #fff; display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(135deg, #85D1DB, #5FB8C5);
+            color: #1E3A4C; display: flex; align-items: center; justify-content: center;
             font-size: 16px; font-weight: 700;
         }
         .landing-nav .brand img { width: 36px; height: 36px; border-radius: 10px; object-fit: cover; }
@@ -36,32 +36,32 @@
         /* ── Hero ── */
         .hero {
             padding: 140px 0 80px;
-            background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 50%, #ede9fe 100%);
+            background: linear-gradient(135deg, #f8fafc 0%, #E6F7F9 50%, #D6F1F5 100%);
             position: relative; overflow: hidden;
         }
         .hero::before {
             content: ''; position: absolute; top: -50%; right: -20%; width: 600px; height: 600px;
-            background: radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(133,209,219,0.12) 0%, transparent 70%);
             border-radius: 50%;
         }
         .hero::after {
             content: ''; position: absolute; bottom: -30%; left: -10%; width: 400px; height: 400px;
-            background: radial-gradient(circle, rgba(139,92,246,0.06) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(95,184,197,0.08) 0%, transparent 70%);
             border-radius: 50%;
         }
         .hero-badge {
             display: inline-flex; align-items: center; gap: 6px;
-            background: rgba(99,102,241,0.1); color: #6366f1;
+            background: rgba(133,209,219,0.12); color: #1E3A4C;
             padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 500;
             margin-bottom: 20px;
         }
         .hero h1 { font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 800; color: #0f172a; line-height: 1.15; }
-        .hero h1 .highlight { background: linear-gradient(135deg, #6366f1, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .hero h1 .highlight { background: linear-gradient(135deg, #85D1DB, #5FB8C5); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
         .hero p { font-size: 18px; color: #64748b; max-width: 540px; line-height: 1.7; }
-        .hero .btn-primary { border-radius: 10px; padding: 14px 32px; font-weight: 600; font-size: 15px; background: #6366f1; border: none; }
-        .hero .btn-primary:hover { background: #4f46e5; }
+        .hero .btn-primary { border-radius: 10px; padding: 14px 32px; font-weight: 600; font-size: 15px; background: #85D1DB; border: none; color: #1E3A4C; }
+        .hero .btn-primary:hover { background: #6CC4D0; color: #1E3A4C; }
         .hero .btn-outline { border-radius: 10px; padding: 14px 32px; font-weight: 600; font-size: 15px; border: 1.5px solid #cbd5e1; color: #475569; }
-        .hero .btn-outline:hover { border-color: #6366f1; color: #6366f1; background: rgba(99,102,241,0.04); }
+        .hero .btn-outline:hover { border-color: #85D1DB; color: #1E3A4C; background: rgba(133,209,219,0.06); }
         .hero-dashboard {
             margin-top: 48px; border-radius: 16px; box-shadow: 0 20px 80px rgba(0,0,0,0.1);
             border: 1px solid rgba(0,0,0,0.06); overflow: hidden;
@@ -72,7 +72,7 @@
             color: #475569; font-weight: 500; font-size: 14px; padding: 6px 14px !important;
             border-radius: 8px; transition: all 0.2s;
         }
-        .nav-link-custom:hover { color: #6366f1; background: rgba(99,102,241,0.06); }
+        .nav-link-custom:hover { color: #1E3A4C; background: rgba(133,209,219,0.08); }
 
         /* ── Features ── */
         .features { padding: 80px 0; }
@@ -83,10 +83,10 @@
             background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px;
             padding: 28px; transition: all 0.2s; height: 100%;
         }
-        .feature-card:hover { border-color: #c7d2fe; background: #f5f3ff; transform: translateY(-2px); }
+        .feature-card:hover { border-color: #B3E4EA; background: #E6F7F9; transform: translateY(-2px); }
         .feature-icon {
             width: 48px; height: 48px; border-radius: 12px;
-            background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff;
+            background: linear-gradient(135deg, #85D1DB, #5FB8C5); color: #1E3A4C;
             display: flex; align-items: center; justify-content: center; font-size: 20px;
             margin-bottom: 16px;
         }
@@ -99,10 +99,10 @@
             background: #fff; border: 1px solid #e2e8f0; border-radius: 14px;
             padding: 32px 24px; text-align: center; transition: all 0.2s; height: 100%;
         }
-        .service-card:hover { border-color: #c7d2fe; transform: translateY(-4px); box-shadow: 0 12px 40px rgba(99,102,241,0.08); }
+        .service-card:hover { border-color: #B3E4EA; transform: translateY(-4px); box-shadow: 0 12px 40px rgba(133,209,219,0.1); }
         .service-icon {
             width: 56px; height: 56px; border-radius: 14px; margin: 0 auto 18px;
-            background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff;
+            background: linear-gradient(135deg, #85D1DB, #5FB8C5); color: #1E3A4C;
             display: flex; align-items: center; justify-content: center; font-size: 24px;
         }
         .service-card h5 { font-size: 17px; font-weight: 600; color: #0f172a; margin-bottom: 8px; }
@@ -113,13 +113,13 @@
         .about h2 { font-size: 30px; font-weight: 700; color: #0f172a; margin-bottom: 16px; }
         .about p { font-size: 16px; color: #475569; line-height: 1.8; max-width: 540px; }
         .about-image {
-            border-radius: 16px; background: linear-gradient(135deg, #eef2ff, #ede9fe);
+            border-radius: 16px; background: linear-gradient(135deg, #E6F7F9, #D6F1F5);
             padding: 40px; text-align: center; height: 100%;
             display: flex; align-items: center; justify-content: center;
         }
-        .about-image i { font-size: 80px; color: #6366f1; opacity: 0.6; }
+        .about-image i { font-size: 80px; color: #85D1DB; opacity: 0.7; }
         .stat-card { text-align: center; padding: 24px; }
-        .stat-number { font-size: 32px; font-weight: 800; color: #6366f1; }
+        .stat-number { font-size: 32px; font-weight: 800; color: #85D1DB; }
         .stat-label { font-size: 14px; color: #64748b; margin-top: 4px; }
 
         /* ── Pricing ── */
@@ -129,15 +129,15 @@
             padding: 36px 28px; text-align: center; transition: all 0.2s; height: 100%;
             position: relative;
         }
-        .pricing-card:hover { border-color: #c7d2fe; transform: translateY(-4px); box-shadow: 0 12px 40px rgba(99,102,241,0.08); }
+        .pricing-card:hover { border-color: #B3E4EA; transform: translateY(-4px); box-shadow: 0 12px 40px rgba(133,209,219,0.1); }
         .pricing-card.featured {
-            border-color: #6366f1; background: linear-gradient(135deg, #fff, #f5f3ff);
+            border-color: #85D1DB; background: linear-gradient(135deg, #fff, #E6F7F9);
             transform: scale(1.03);
         }
         .pricing-card.featured:hover { transform: scale(1.03) translateY(-4px); }
         .pricing-badge {
             position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
-            background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff;
+            background: linear-gradient(135deg, #85D1DB, #5FB8C5); color: #1E3A4C;
             padding: 4px 16px; border-radius: 20px; font-size: 12px; font-weight: 600;
         }
         .pricing-card .plan-name { font-size: 18px; font-weight: 600; color: #0f172a; margin-bottom: 4px; }
@@ -152,11 +152,11 @@
         .pricing-card .features-list li i { color: #10b981; font-size: 16px; }
         .pricing-card .btn-pricing {
             border-radius: 10px; padding: 12px; font-weight: 600; font-size: 15px;
-            width: 100%; background: #6366f1; border: none; color: #fff;
+            width: 100%; background: #85D1DB; border: none; color: #1E3A4C;
         }
-        .pricing-card .btn-pricing:hover { background: #4f46e5; }
-        .pricing-card.featured .btn-pricing { background: #6366f1; }
-        .pricing-card.featured .btn-pricing:hover { background: #4f46e5; }
+        .pricing-card .btn-pricing:hover { background: #6CC4D0; color: #1E3A4C; }
+        .pricing-card.featured .btn-pricing { background: #85D1DB; color: #1E3A4C; }
+        .pricing-card.featured .btn-pricing:hover { background: #6CC4D0; color: #1E3A4C; }
 
         /* ── Footer ── */
         .landing-footer {
@@ -230,33 +230,33 @@
                 <div class="hero-dashboard">
                     <svg viewBox="0 0 600 380" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;">
                         <rect width="600" height="380" rx="12" fill="#fff"/>
-                        <rect x="20" y="16" width="80" height="20" rx="6" fill="#6366f1"/>
+                        <rect x="20" y="16" width="80" height="20" rx="6" fill="#85D1DB"/>
                         <rect x="110" y="16" width="120" height="20" rx="6" fill="#e2e8f0"/>
                         <rect x="560" y="16" width="20" height="20" rx="6" fill="#e2e8f0"/>
                         <rect x="530" y="16" width="20" height="20" rx="6" fill="#e2e8f0"/>
                         <rect x="20" y="56" width="270" height="140" rx="10" fill="#f1f5f9"/>
-                        <rect x="30" y="70" width="120" height="10" rx="4" fill="#6366f1" opacity="0.5"/>
+                        <rect x="30" y="70" width="120" height="10" rx="4" fill="#85D1DB" opacity="0.5"/>
                         <rect x="30" y="88" width="90" height="10" rx="4" fill="#94a3b8"/>
                         <rect x="30" y="104" width="200" height="24" rx="6" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
                         <rect x="30" y="136" width="200" height="24" rx="6" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
                         <rect x="30" y="168" width="200" height="24" rx="6" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
                         <rect x="310" y="56" width="270" height="140" rx="10" fill="#f1f5f9"/>
-                        <rect x="320" y="70" width="140" height="10" rx="4" fill="#6366f1" opacity="0.5"/>
-                        <rect x="320" y="104" width="80" height="32" rx="6" fill="#6366f1"/>
+                        <rect x="320" y="70" width="140" height="10" rx="4" fill="#85D1DB" opacity="0.5"/>
+                        <rect x="320" y="104" width="80" height="32" rx="6" fill="#85D1DB"/>
                         <rect x="410" y="104" width="80" height="32" rx="6" fill="#10b981"/>
                         <rect x="500" y="104" width="60" height="32" rx="6" fill="#f59e0b"/>
                         <rect x="320" y="148" width="240" height="8" rx="4" fill="#e2e8f0"/>
                         <rect x="320" y="162" width="180" height="8" rx="4" fill="#e2e8f0"/>
                         <rect x="320" y="176" width="200" height="8" rx="4" fill="#e2e8f0"/>
                         <rect x="20" y="216" width="560" height="140" rx="10" fill="#f8fafc"/>
-                        <rect x="30" y="228" width="100" height="10" rx="4" fill="#6366f1" opacity="0.5"/>
+                        <rect x="30" y="228" width="100" height="10" rx="4" fill="#85D1DB" opacity="0.5"/>
                         <rect x="30" y="250" width="540" height="10" rx="4" fill="#e2e8f0"/>
                         <rect x="30" y="268" width="540" height="10" rx="4" fill="#e2e8f0"/>
                         <rect x="30" y="286" width="540" height="10" rx="4" fill="#e2e8f0"/>
                         <rect x="30" y="304" width="540" height="10" rx="4" fill="#e2e8f0"/>
                         <rect x="30" y="322" width="540" height="10" rx="4" fill="#e2e8f0"/>
                         <rect x="30" y="340" width="200" height="10" rx="4" fill="#e2e8f0"/>
-                        <rect x="480" y="338" width="90" height="14" rx="6" fill="#6366f1"/>
+                        <rect x="480" y="338" width="90" height="14" rx="6" fill="#85D1DB"/>
                     </svg>
                 </div>
             </div>

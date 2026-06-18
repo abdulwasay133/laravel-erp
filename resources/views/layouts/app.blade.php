@@ -6,8 +6,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Dashboard') — {{ \App\Models\Setting::getValue('company_name', 'ERP System') }}</title>
 
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Inter + Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
 
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -31,51 +31,95 @@
     <link href="{{ asset('css/datatable_custom.css') }}" rel="stylesheet">
 
     <style>
-        :root { --fp-primary: #6366f1; --fp-primary-light: rgba(99,102,241,0.15); }
-        .flatpickr-calendar { border-radius: 10px; box-shadow: 0 8px 30px rgba(0,0,0,0.12); }
+        :root {
+            --fp-primary: #85D1DB;
+            --fp-primary-light: rgba(133, 209, 219, 0.15);
+        }
+        .flatpickr-calendar {
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            font-family: 'Inter', sans-serif;
+        }
         .flatpickr-day.today { border-color: var(--fp-primary); }
         .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange,
         .flatpickr-day.selected.inRange, .flatpickr-day.startRange.inRange, .flatpickr-day.endRange.inRange,
-        .flatpickr-day:focus, .flatpickr-day:hover { background: var(--fp-primary); border-color: var(--fp-primary); }
-        .flatpickr-day.inRange { background: var(--fp-primary-light); border-color: transparent; box-shadow: -5px 0 0 var(--fp-primary-light),5px 0 0 var(--fp-primary-light); }
+        .flatpickr-day:focus, .flatpickr-day:hover {
+            background: var(--fp-primary) !important;
+            border-color: var(--fp-primary) !important;
+            color: #1E3A4C !important;
+        }
+        .flatpickr-day.inRange {
+            background: var(--fp-primary-light);
+            border-color: transparent;
+            box-shadow: -5px 0 0 var(--fp-primary-light),5px 0 0 var(--fp-primary-light);
+        }
         .flatpickr-months .flatpickr-month { background: transparent; }
         .flatpickr-current-month .flatpickr-monthDropdown-months { font-weight: 600; }
         .flatpickr-current-month input.cur-year { font-weight: 600; }
-        .flatpickr-months .flatpickr-prev-month svg, .flatpickr-months .flatpickr-next-month svg { fill: #6366f1; }
-        .flatpickr-weekday { color: #64748b; font-weight: 600; }
+        .flatpickr-months .flatpickr-prev-month svg,
+        .flatpickr-months .flatpickr-next-month svg { fill: #85D1DB; }
+        .flatpickr-weekday { color: #6B7280; font-weight: 600; }
         .numInputWrapper span.arrowUp, .numInputWrapper span.arrowDown { display: none; }
 
         .date-range-group {
             display: flex;
             align-items: center;
-            border: 1px solid #d1d5db;
+            border: 1.5px solid #E5E7EB;
             border-radius: 8px;
             background: #fff;
-            transition: border-color 0.15s, box-shadow 0.15s;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
         .date-range-group:focus-within {
-            border-color: #6366f1;
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+            border-color: #85D1DB;
+            box-shadow: 0 0 0 3px rgba(133, 209, 219, 0.12);
         }
         .date-range-group .form-control,
         .date-range-group .flatpickr-input {
             border: none;
             background: transparent;
-            padding: 0.4rem 0.5rem;
+            padding: 0.4rem 0.6rem;
             font-size: 0.875rem;
         }
         .date-range-group .form-control:focus,
         .date-range-group .flatpickr-input:focus { box-shadow: none; }
-        .range-sep { flex-shrink: 0; color: #94a3b8; font-weight: 600; font-size: 14px; padding: 0 1px; user-select: none; }
+        .range-sep {
+            flex-shrink: 0;
+            color: #9CA3AF;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 0 2px;
+            user-select: none;
+        }
 
-        /* ── Select2 indigo theme ── */
-        .select2-container--bootstrap-5 .select2-selection { border-color: #d1d5db; border-radius: 6px; min-height: 37px; }
+        /* ── Select2 theme ── */
+        .select2-container--bootstrap-5 .select2-selection {
+            border-color: #E5E7EB;
+            border-radius: 8px;
+            min-height: 39px;
+            transition: all 0.2s ease;
+        }
         .select2-container--bootstrap-5.select2-container--focus .select2-selection,
-        .select2-container--bootstrap-5.select2-container--open .select2-selection { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.12); }
-        .select2-container--bootstrap-5 .select2-dropdown { border-color: #d1d5db; border-radius: 8px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); }
-        .select2-container--bootstrap-5 .select2-results__option--selected { background: rgba(99,102,241,0.08); color: #6366f1; }
-        .select2-container--bootstrap-5 .select2-results__option--highlighted { background: #6366f1; color: #fff; }
-        .select2-container--bootstrap-5 .select2-search__field:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.12); }
+        .select2-container--bootstrap-5.select2-container--open .select2-selection {
+            border-color: #85D1DB;
+            box-shadow: 0 0 0 3px rgba(133, 209, 219, 0.12);
+        }
+        .select2-container--bootstrap-5 .select2-dropdown {
+            border-color: #E5E7EB;
+            border-radius: 10px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        }
+        .select2-container--bootstrap-5 .select2-results__option--selected {
+            background: rgba(133, 209, 219, 0.08);
+            color: #1E3A4C;
+        }
+        .select2-container--bootstrap-5 .select2-results__option--highlighted {
+            background: #85D1DB;
+            color: #1E3A4C;
+        }
+        .select2-container--bootstrap-5 .select2-search__field:focus {
+            border-color: #85D1DB;
+            box-shadow: 0 0 0 3px rgba(133, 209, 219, 0.12);
+        }
     </style>
 
 

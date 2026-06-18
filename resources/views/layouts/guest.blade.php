@@ -7,7 +7,7 @@
     <title>{{ __('Login') }} — {{ \App\Models\Setting::getValue('company_name', 'ERP System') }}</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 
@@ -18,7 +18,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1E3A4C 0%, #2D5A6E 100%);
             padding: 20px;
         }
         .login-card {
@@ -26,7 +26,7 @@
             max-width: 420px;
             background: #fff;
             border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            box-shadow: 0 20px 60px rgba(30, 58, 76, 0.25);
             padding: 40px 36px;
         }
         .login-header {
@@ -44,8 +44,8 @@
             width: 64px;
             height: 64px;
             border-radius: 14px;
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            color: #fff;
+            background: linear-gradient(135deg, #85D1DB 0%, #5FB8C5 100%);
+            color: #1E3A4C;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -56,36 +56,38 @@
         .login-header .brand-name {
             font-size: 22px;
             font-weight: 700;
-            color: #1e293b;
+            color: #1E3A4C;
+            font-family: 'Poppins', 'Inter', sans-serif;
             display: block;
         }
         .login-header .brand-tagline {
             font-size: 13px;
-            color: #94a3b8;
+            color: #9CA3AF;
             margin-top: 4px;
         }
         .form-floating > .form-control:focus ~ label,
         .form-floating > .form-control:not(:placeholder-shown) ~ label {
-            color: #6366f1;
+            color: #85D1DB;
         }
         .form-floating > .form-control:focus {
-            border-color: #6366f1;
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+            border-color: #85D1DB;
+            box-shadow: 0 0 0 3px rgba(133, 209, 219, 0.12);
         }
         .login-btn {
-            background: #6366f1;
+            background: #85D1DB;
             border: none;
             padding: 12px;
             font-weight: 600;
+            color: #1E3A4C;
             border-radius: 10px;
-            transition: background 0.15s;
+            transition: all 0.2s ease;
         }
-        .login-btn:hover { background: #4f46e5; }
-        .login-btn:active { background: #4338ca !important; }
-        .form-check-input:checked { background-color: #6366f1; border-color: #6366f1; }
-        .form-check-input:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12); }
-        .forgot-link { color: #6366f1; font-size: 14px; text-decoration: none; }
-        .forgot-link:hover { color: #4f46e5; text-decoration: underline; }
+        .login-btn:hover { background: #6CC4D0; color: #1E3A4C; }
+        .login-btn:active { background: #5BB5C2 !important; color: #1E3A4C !important; }
+        .form-check-input:checked { background-color: #85D1DB; border-color: #85D1DB; }
+        .form-check-input:focus { border-color: #85D1DB; box-shadow: 0 0 0 3px rgba(133, 209, 219, 0.12); }
+        .forgot-link { color: #1E3A4C; font-size: 14px; text-decoration: none; font-weight: 500; }
+        .forgot-link:hover { color: #85D1DB; text-decoration: underline; }
         .alert-danger { border-radius: 10px; font-size: 14px; }
     </style>
 </head>

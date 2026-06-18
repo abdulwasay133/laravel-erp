@@ -17,13 +17,13 @@
     .pos-topbar .form-control { border-radius: 8px; }
     .pos-cats { padding: 8px 16px; background: #fff; border-bottom: 1px solid #e2e8f0; display: flex; flex-wrap: wrap; gap: 6px; max-height: 80px; overflow-y: auto; flex-shrink: 0; }
     .pos-cats .cat-pill { padding: 4px 14px; border-radius: 20px; border: 1px solid #e2e8f0; font-size: 12px; cursor: pointer; background: #fff; transition: all .15s; white-space: nowrap; font-weight: 500; color: #64748b; }
-    .pos-cats .cat-pill:hover { border-color: #6366f1; color: #6366f1; background: #f5f3ff; }
-    .pos-cats .cat-pill.active { background: #6366f1; color: #fff; border-color: #6366f1; }
+    .pos-cats .cat-pill:hover { border-color: #85D1DB; color: #1E3A4C; background: rgba(133, 209, 219, 0.08); }
+    .pos-cats .cat-pill.active { background: #85D1DB; color: #1E3A4C; border-color: #85D1DB; font-weight: 600; }
     .pos-products { flex: 1; overflow-y: auto; padding: 12px; display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; align-content: start; }
     .pos-product-btn { border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 8px; text-align: center; cursor: pointer; background: #fff; transition: all .18s; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-    .pos-product-btn:hover { border-color: #6366f1; box-shadow: 0 4px 12px rgba(99,102,241,.12); transform: translateY(-2px); }
+    .pos-product-btn:hover { border-color: #85D1DB; box-shadow: 0 4px 12px rgba(133, 209, 219, 0.15); transform: translateY(-2px); }
     .pos-product-btn .name { font-size: 13px; font-weight: 600; line-height: 1.3; color: #1e293b; }
-    .pos-product-btn .price { font-size: 15px; font-weight: 700; color: #6366f1; }
+    .pos-product-btn .price { font-size: 15px; font-weight: 700; color: #1E3A4C; }
     .pos-product-btn .stock { font-size: 11px; color: #94a3b8; font-weight: 500; }
     .pos-product-btn.out-of-stock { opacity: .45; pointer-events: none; }
 
@@ -47,19 +47,19 @@
     .cart-footer .total-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
     .cart-footer .total-row .label { color: #64748b; font-weight: 500; }
     .cart-footer .total-row .value { font-weight: 600; color: #1e293b; }
-    .cart-footer .grand-total-row { font-size: 18px; font-weight: 800; color: #6366f1; border-top: 2px solid #6366f1; padding-top: 8px; margin-top: 4px; }
+    .cart-footer .grand-total-row { font-size: 18px; font-weight: 800; color: #1E3A4C; border-top: 2px solid #85D1DB; padding-top: 8px; margin-top: 4px; }
     .cart-footer .discount-row input { width: 70px; text-align: right; border-radius: 6px; }
 
     .pos-payment { padding: 12px 16px; border-top: 1px solid #e2e8f0; background: #fff; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px; }
-    .pos-payment .payment-type-btn.active { background: #6366f1; color: #fff; border-color: #6366f1; }
+    .pos-payment .payment-type-btn.active { background: #85D1DB; color: #1E3A4C; border-color: #85D1DB; font-weight: 600; }
     .pos-payment .payment-type-btn:not(.active) { border-color: #e2e8f0; color: #64748b; }
-    .pos-payment .payment-method-btn.active { background: #6366f1; color: #fff; border-color: #6366f1; }
+    .pos-payment .payment-method-btn.active { background: #85D1DB; color: #1E3A4C; border-color: #85D1DB; font-weight: 600; }
     .pos-payment .payment-method-btn:not(.active) { border-color: #e2e8f0; color: #64748b; }
 
     #sessionBar { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; font-size: 13px; flex-shrink: 0; border-radius: 10px 10px 0 0; }
     #sessionBar .session-open { color: #10b981; font-weight: 600; }
-    .customer-badge { font-size: 13px; cursor: pointer; color: #6366f1; font-weight: 500; }
-    .customer-badge:hover { color: #4f46e5; }
+    .customer-badge { font-size: 13px; cursor: pointer; color: #85D1DB; font-weight: 600; }
+    .customer-badge:hover { color: #1E3A4C; }
     .pos-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #94a3b8; height: 100%; gap: 8px; padding: 40px; flex: 1; }
     .pos-empty i { font-size: 48px; }
     .fw-700 { font-weight: 700; }

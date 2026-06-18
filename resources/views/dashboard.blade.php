@@ -11,35 +11,86 @@
 <style>
     .chart-box { height: 230px; position: relative; }
     .chart-box.sm { height: 200px; }
-    .progress-track { height: 5px; border-radius: 999px; background: #eef0f8; overflow: hidden; }
+    .progress-track { height: 6px; border-radius: 999px; background: #F3F4F6; overflow: hidden; }
     .progress-line { height: 100%; border-radius: inherit; }
     .metric-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
-    .metric-tile { border-radius: 10px; padding: 18px; position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 6px; }
-    .metric-tile .icon-circle { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; margin-bottom: 10px; }
-    .metric-tile .value { font-size: 20px; font-weight: 800; line-height: 1.15; word-break: break-word; }
-    .metric-tile .label { font-size: 12px; font-weight: 600; }
-    .metric-tile .change { font-size: 11px; font-weight: 500; margin-top: 2px; }
-    .tile-rose { background: #fff5f6; } .tile-cream { background: #fffcf0; }
-    .tile-mint { background: #edfbf4; } .tile-lilac { background: #f7f0ff; }
-    .tile-blue { background: #f0f6ff; } .tile-coral { background: #fff6f0; }
-    .icon-rose { background: #ff6b81; color: #fff; } .icon-orange { background: #ff9f43; color: #fff; }
-    .icon-green { background: #2ed573; color: #fff; } .icon-purple { background: #a55eea; color: #fff; }
-    .icon-blue { background: #45aaf2; color: #fff; } .icon-red { background: #fc5c65; color: #fff; }
-    .stat-today { border-radius: 10px; padding: 16px; display: flex; align-items: center; gap: 14px; background: #f8fafc; }
-    .dash-table thead th { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: #64748b; background: #f8fafc; border-bottom: 1px solid #e2e8f0 !important; padding: 10px 14px; }
-    .dash-table td { padding: 10px 14px; font-size: 13px; vertical-align: middle; }
-    .stat-today .icon-circle { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
-    .stat-today .stat-value { font-size: 18px; font-weight: 800; line-height: 1.2; }
-    .stat-today .stat-label { font-size: 12px; font-weight: 600; }
-    .stat-today .stat-change { font-size: 11px; font-weight: 500; }
-    .quick-stat { border-radius: 10px; padding: 20px; display: flex; flex-direction: column; gap: 6px; }
-    .quick-stat .icon-circle { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
-    .quick-stat .value { font-size: 22px; font-weight: 800; }
-    .quick-stat .label { font-size: 12px; font-weight: 600; }
-    .last-card { border-radius: 10px; padding: 20px; display: flex; flex-direction: column; gap: 8px; }
-    .last-card .icon-circle { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
-    .last-card .value { font-size: 20px; font-weight: 800; }
-    .last-card .meta { font-size: 12px; font-weight: 500; }
+    .metric-tile {
+        border-radius: 12px; padding: 20px;
+        position: relative; overflow: hidden;
+        display: flex; flex-direction: column; gap: 6px;
+        border: 1px solid rgba(0,0,0,0.04);
+        transition: all 0.2s ease;
+    }
+    .metric-tile:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+    .metric-tile .icon-circle {
+        width: 38px; height: 38px; border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 17px; margin-bottom: 10px;
+    }
+    .metric-tile .value { font-size: 22px; font-weight: 800; line-height: 1.15; word-break: break-word; color: #1F2937; }
+    .metric-tile .label { font-size: 12px; font-weight: 600; color: #6B7280; }
+    .metric-tile .change { font-size: 11px; font-weight: 500; margin-top: 2px; color: #9CA3AF; }
+    .tile-rose { background: linear-gradient(135deg, #FFF5F6, #FFE4E6); }
+    .tile-cream { background: linear-gradient(135deg, #FFFBEB, #FEF3C7); }
+    .tile-mint { background: linear-gradient(135deg, #ECFDF5, #D1FAE5); }
+    .tile-lilac { background: linear-gradient(135deg, #F5F3FF, #EDE9FE); }
+    .tile-blue { background: linear-gradient(135deg, #EFF6FF, #DBEAFE); }
+    .tile-coral { background: linear-gradient(135deg, #FFF7ED, #FFEDD5); }
+    .icon-rose { background: linear-gradient(135deg, #FB7185, #F43F5E); color: #fff; }
+    .icon-orange { background: linear-gradient(135deg, #FBBF24, #F59E0B); color: #fff; }
+    .icon-green { background: linear-gradient(135deg, #34D399, #10B981); color: #fff; }
+    .icon-purple { background: linear-gradient(135deg, #A78BFA, #8B5CF6); color: #fff; }
+    .icon-blue { background: linear-gradient(135deg, #60A5FA, #3B82F6); color: #fff; }
+    .icon-red { background: linear-gradient(135deg, #FB7185, #EF4444); color: #fff; }
+    .stat-today {
+        border-radius: 12px; padding: 18px;
+        display: flex; align-items: center; gap: 14px;
+        background: #F9FAFB;
+        transition: all 0.2s ease;
+    }
+    .stat-today:hover { background: #F3F4F6; }
+    .dash-table thead th {
+        font-size: 11px; font-weight: 600;
+        text-transform: uppercase; letter-spacing: 0.5px;
+        color: #6B7280;
+        background: #F9FAFB;
+        border-bottom: 2px solid #E5E7EB !important;
+        padding: 12px 14px;
+        white-space: nowrap;
+    }
+    .dash-table td { padding: 12px 14px; font-size: 13px; vertical-align: middle; border-bottom: 1px solid #F3F4F6; }
+    .dash-table tbody tr { transition: background 0.15s ease; }
+    .dash-table tbody tr:hover { background: #F9FAFB; }
+    .stat-today .icon-circle {
+        width: 44px; height: 44px; border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 18px; flex-shrink: 0;
+    }
+    .stat-today .stat-value { font-size: 18px; font-weight: 800; line-height: 1.2; color: #1F2937; }
+    .stat-today .stat-label { font-size: 12px; font-weight: 600; color: #6B7280; }
+    .stat-today .stat-change { font-size: 11px; font-weight: 500; color: #9CA3AF; }
+    .quick-stat {
+        border-radius: 12px; padding: 22px;
+        display: flex; flex-direction: column; gap: 6px;
+        border: 1px solid #E5E7EB;
+        background: #fff;
+        transition: all 0.2s ease;
+    }
+    .quick-stat:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.06); transform: translateY(-1px); }
+    .quick-stat .icon-circle { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 17px; }
+    .quick-stat .value { font-size: 24px; font-weight: 800; color: #1F2937; }
+    .quick-stat .label { font-size: 12px; font-weight: 600; color: #6B7280; }
+    .last-card {
+        border-radius: 12px; padding: 22px;
+        display: flex; flex-direction: column; gap: 8px;
+        border: 1px solid #E5E7EB;
+        background: #fff;
+        transition: all 0.2s ease;
+    }
+    .last-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+    .last-card .icon-circle { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 17px; }
+    .last-card .value { font-size: 20px; font-weight: 800; color: #1F2937; }
+    .last-card .meta { font-size: 12px; font-weight: 500; color: #6B7280; }
     @media (max-width: 1199px) { .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (max-width: 767px) { .metric-grid { grid-template-columns: 1fr; } }
 </style>
