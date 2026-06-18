@@ -258,35 +258,29 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <div class="row g-2">
-                        <div class="col-4">
-                            <div class="stat-today">
-                                <div class="icon-circle" style="background:#e8f4fd;color:#3498db;"><i class="bi bi-cart"></i></div>
-                                <div>
-                                    <div class="stat-value">Rs. {{ number_format($todayData['todaySales'], 0) }}</div>
-                                    <div class="stat-label text-muted">Sales</div>
-                                    <div class="stat-change text-muted">{{ $todayData['todaySaleCount'] }} transactions</div>
-                                </div>
+                    <div class="d-flex flex-column gap-2">
+                        <div class="stat-today">
+                            <div class="icon-circle" style="background:#e8f4fd;color:#3498db;"><i class="bi bi-cart"></i></div>
+                            <div>
+                                <div class="stat-value">Rs. {{ number_format($todayData['todaySales'], 0) }}</div>
+                                <div class="stat-label text-muted">Sales</div>
+                                <div class="stat-change text-muted">{{ $todayData['todaySaleCount'] }} transactions</div>
                             </div>
                         </div>
-                        <div class="col-4">
-                            <div class="stat-today">
-                                <div class="icon-circle" style="background:#e8f8ef;color:#27ae60;"><i class="bi bi-bag"></i></div>
-                                <div>
-                                    <div class="stat-value">Rs. {{ number_format($todayData['todayPurchases'], 0) }}</div>
-                                    <div class="stat-label text-muted">Purchases</div>
-                                    <div class="stat-change text-muted">{{ $todayData['todayPurchaseCount'] }} transactions</div>
-                                </div>
+                        <div class="stat-today">
+                            <div class="icon-circle" style="background:#e8f8ef;color:#27ae60;"><i class="bi bi-bag"></i></div>
+                            <div>
+                                <div class="stat-value">Rs. {{ number_format($todayData['todayPurchases'], 0) }}</div>
+                                <div class="stat-label text-muted">Purchases</div>
+                                <div class="stat-change text-muted">{{ $todayData['todayPurchaseCount'] }} transactions</div>
                             </div>
                         </div>
-                        <div class="col-4">
-                            <div class="stat-today">
-                                <div class="icon-circle" style="background:#fde8e8;color:#e74c3c;"><i class="bi bi-cash-stack"></i></div>
-                                <div>
-                                    <div class="stat-value">Rs. {{ number_format($todayData['todayExpenses'], 0) }}</div>
-                                    <div class="stat-label text-muted">Expenses</div>
-                                    <div class="stat-change text-muted">Today</div>
-                                </div>
+                        <div class="stat-today">
+                            <div class="icon-circle" style="background:#fde8e8;color:#e74c3c;"><i class="bi bi-cash-stack"></i></div>
+                            <div>
+                                <div class="stat-value">Rs. {{ number_format($todayData['todayExpenses'], 0) }}</div>
+                                <div class="stat-label text-muted">Expenses</div>
+                                <div class="stat-change text-muted">Today</div>
                             </div>
                         </div>
                     </div>
