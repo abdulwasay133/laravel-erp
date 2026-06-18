@@ -1,5 +1,5 @@
 <header id="topbar">
-    <button class="topbar-toggler" id="sidebarToggle">
+    <button class="topbar-toggler" id="sidebarToggle" type="button" aria-label="Toggle navigation">
         <i class="bi bi-list"></i>
     </button>
 
@@ -14,11 +14,11 @@
     </div>
 
     <div class="topbar-right">
-        <button class="topbar-btn" title="Search">
+        <button class="topbar-btn" type="button" title="Search" aria-label="Search">
             <i class="bi bi-search"></i>
         </button>
 
-        <a href="{{ route('near-to-expiry.index') }}" class="topbar-btn" title="Notifications">
+        <a href="{{ route('near-to-expiry.index') }}" class="topbar-btn" title="Notifications" aria-label="Notifications">
             <i class="bi bi-bell"></i>
             @php
                 $nearExpiryCount = DB::table('product_batches')
@@ -35,14 +35,14 @@
             @endif
         </a>
 
-        <button class="topbar-btn" title="Messages">
+        <button class="topbar-btn" type="button" title="Messages" aria-label="Messages">
             <i class="bi bi-chat-dots"></i>
         </button>
 
         <div class="topbar-divider"></div>
 
         <div class="dropdown">
-            <button class="topbar-btn" data-bs-toggle="dropdown">
+            <button class="topbar-btn" type="button" data-bs-toggle="dropdown" aria-label="Quick actions">
                 <i class="bi bi-grid"></i>
             </button>
             <ul class="dropdown-menu dropdown-menu-end">

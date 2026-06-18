@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Dashboard') — {{ \App\Models\Setting::getValue('company_name', 'ERP System') }}</title>
+    <title>@yield('title', 'Dashboard') &mdash; {{ \App\Models\Setting::getValue('company_name', 'ERP System') }}</title>
 
     <!-- Google Fonts: Inter + Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
@@ -91,7 +91,7 @@
             user-select: none;
         }
 
-        /* ── Select2 theme ── */
+        /* Select2 theme */
         .select2-container--bootstrap-5 .select2-selection {
             border-color: #E5E7EB;
             border-radius: 8px;
@@ -130,13 +130,10 @@
 <!-- Sidebar Overlay (mobile) -->
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-<!-- ══ SIDEBAR ══════════════════════════════════════════ -->
 @include('layouts.partials.sidebar')
 
-<!-- ══ TOPBAR ════════════════════════════════════════════ -->
 @include('layouts.partials.topbar')
 
-<!-- ══ MAIN CONTENT ══════════════════════════════════════ -->
 <main id="main-content">
 
 
@@ -146,8 +143,6 @@
     
 
 </main>
-
-<!-- ══ SCRIPTS (load ONCE, correct order) ══════════════════ -->
 
 <!-- 1. jQuery FIRST -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -202,7 +197,7 @@
         });
     });
 
-    // flatpickr — two linked pickers (start / end)
+    // flatpickr - two linked pickers (start / end)
     $('.date-range-group').each(function () {
         var $g = $(this);
         var startHidden = $g.find('#startDate')[0];
@@ -236,7 +231,7 @@
         });
     });
 
-    // Select2 — searchable dropdowns
+    // Select2 - searchable dropdowns
     function initSelect2($el) {
         if ($el.data('select2')) $el.select2('destroy');
         var opts = {

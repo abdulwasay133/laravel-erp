@@ -1,4 +1,4 @@
-<nav id="sidebar">
+<nav id="sidebar" aria-label="Primary navigation">
     <a href="{{ route('dashboard') }}" class="sidebar-brand">
         @php
             $logo = \App\Models\Setting::getValue('company_logo');

@@ -13,9 +13,9 @@
 <form method="POST" action="{{ route('sale.store') }}" id="saleForm">
     @csrf
 
-    <div class="form-layout">
+    <div class="form-layout" style="grid-template-columns:1fr;">
 
-        {{-- LEFT COLUMN --}}
+        {{-- MAIN COLUMN --}}
         <div class="form-layout__main">
 
             {{-- Basic Information --}}
@@ -109,12 +109,18 @@
 
             {{-- Sale Items --}}
             <div class="card mb-2">
-                <div class="card-header">
-                    <i class="bi bi-box-seam text-primary-custom"></i>
-                    <div>
-                        <h6 class="card-title">Sale Items</h6>
-                        <p class="card-subtitle">Products being sold</p>
+                <div class="card-header justify-content-between">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="bi bi-box-seam text-primary-custom"></i>
+                        <div>
+                            <h6 class="card-title">Sale Items</h6>
+                            <p class="card-subtitle">Products being sold</p>
+                        </div>
                     </div>
+                    <button type="button" class="btn btn-sm btn-outline-secondary border-0" title="Keyboard shortcuts"
+                            onclick="$('#shortcutsModal').modal('show')">
+                        <i class="bi bi-question-lg"></i>
+                    </button>
                 </div>
                 <div class="card-body">
 
@@ -252,33 +258,40 @@
 
         </div>
 
-        {{-- RIGHT COLUMN --}}
-        <div class="form-layout__sidebar">
-
-            {{-- Shortcuts Hint --}}
-            <div class="card p-3 mt-2">
-                <div class="card__header"><h2 class="card__title" style="font-size:13px;">Shortcuts</h2></div>
-                <div class="card__body">
-                    <div style="font-size:12px; line-height:2;">
-                        <kbd>F2</kbd> Add Item &middot; <kbd>F8</kbd> Remove Last
-                    </div>
-                </div>
-            </div>
-
-            {{-- Buttons --}}
-            <div class="d-flex gap-2 justify-content-end mt-3">
-                <a href="{{ route('sale.index') }}" class="btn btn-outline-secondary">
-                    <i class="bi bi-x-lg me-1"></i> Cancel
-                </a>
-                <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-check-lg me-1"></i> Create Sale
-                </button>
-            </div>
-
+        {{-- Buttons --}}
+        <div class="d-flex gap-2 justify-content-end mt-3">
+            <a href="{{ route('sale.index') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-x-lg me-1"></i> Cancel
+            </a>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-lg me-1"></i> Create Sale
+            </button>
         </div>
-    </div>
+
+        </div>{{-- /form-layout__main --}}
+    </div>{{-- /form-layout --}}
 
 </form>
+
+{{-- Shortcuts Modal --}}
+<div class="modal fade" id="shortcutsModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title"><i class="bi bi-keyboard me-1"></i> Keyboard Shortcuts</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-sm table-borderless mb-0">
+                    <tbody>
+                        <tr><td><kbd>F2</kbd></td><td>Add Item Row</td></tr>
+                        <tr><td><kbd>F8</kbd></td><td>Remove Last Item</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 
 @endsection
 
