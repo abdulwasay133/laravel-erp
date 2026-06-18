@@ -29,7 +29,7 @@ class NearToExpiryController extends Controller
             return \Yajra\DataTables\Facades\DataTables::of($nearExpiry)
                 ->addIndexColumn()
                 ->addColumn('expiry_status', function ($row) {
-                    $daysLeft = now()->diffInDays(\Carbon\Carbon::parse($row->expiry_date), false);
+                    $daysLeft = (int) now()->diffInDays(\Carbon\Carbon::parse($row->expiry_date), false);
                     if ($daysLeft < 0) {
                         return '<span class="badge bg-danger">Expired</span>';
                     } elseif ($daysLeft <= 7) {
