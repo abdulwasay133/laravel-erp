@@ -117,7 +117,7 @@ $(function () {
     function loadClosingData() {
         const date = $('#closingDate').val();
         if (!date) {
-            alert('Please select a closing date.');
+            Swal.fire({ icon: 'warning', title: 'Date Required', text: 'Please select a closing date.', confirmButtonColor: '#0d6efd' });
             return;
         }
 
@@ -127,7 +127,7 @@ $(function () {
                 updateStatus(response.is_closed, response.closed_by, response.closed_at);
             })
             .fail(function () {
-                alert('Unable to load closing data.');
+                Swal.fire({ icon: 'error', title: 'Error', text: 'Unable to load closing data.', confirmButtonColor: '#0d6efd' });
             });
     }
 
@@ -136,30 +136,37 @@ $(function () {
     $('#dayCloseBtn').on('click', function () {
         const date = $('#closingDate').val();
         if (!date) {
-            alert('Please select a closing date.');
+            Swal.fire({ icon: 'warning', title: 'Date Required', text: 'Please select a closing date.', confirmButtonColor: '#0d6efd' });
             return;
         }
 
-        if (!confirm('Close the day for ' + date + '?')) {
-            return;
-        }
+        Swal.fire({
+            title: 'Close the day for ' + date + '?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, Close',
+            cancelButtonText: 'Cancel',
+            confirmButtonColor: '#198754'
+        }).then(function (result) {
+            if (!result.isConfirmed) return;
 
-        $.post('{{ route('daily-closing.close') }}', { closing_date: date })
-            .done(function (response) {
-                updateFigures(response.figures);
-                updateStatus(true, '{{ auth()->user()->name }}', new Date().toLocaleString());
-                alert(response.message);
-            })
-            .fail(function (xhr) {
-                const message = xhr.responseJSON?.message || 'Unable to close the day.';
-                alert(message);
-            });
+            $.post('{{ route('daily-closing.close') }}', { closing_date: date })
+                .done(function (response) {
+                    updateFigures(response.figures);
+                    updateStatus(true, '{{ auth()->user()->name }}', new Date().toLocaleString());
+                    Swal.fire({ icon: 'success', title: 'Closed!', text: response.message, timer: 2000, showConfirmButton: false });
+                })
+                .fail(function (xhr) {
+                    const message = xhr.responseJSON?.message || 'Unable to close the day.';
+                    Swal.fire({ icon: 'error', title: 'Error', text: message, confirmButtonColor: '#0d6efd' });
+                });
+        });
     });
 
     $('#printBtn').on('click', function () {
         const date = $('#closingDate').val();
         if (!date) {
-            alert('Please select a closing date.');
+            Swal.fire({ icon: 'warning', title: 'Date Required', text: 'Please select a closing date.', confirmButtonColor: '#0d6efd' });
             return;
         }
         const url = '{{ route('daily-closing.print') }}' + '?date=' + date;

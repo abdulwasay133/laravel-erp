@@ -51,7 +51,14 @@ class CashAdjustmentController extends Controller
                 ->make(true);
         }
 
-        return view('cash-adjustments.index');
+        $stats = [
+            'total_adjustments' => CashAdjustment::count(),
+            'total_increase' => CashAdjustment::where('adjustment_type', 'increase')->sum('amount'),
+            'total_decrease' => CashAdjustment::where('adjustment_type', 'decrease')->sum('amount'),
+            'net_adjustment' => CashAdjustment::where('adjustment_type', 'increase')->sum('amount') - CashAdjustment::where('adjustment_type', 'decrease')->sum('amount'),
+        ];
+
+        return view('cash-adjustments.index', compact('stats'));
     }
 
     /**

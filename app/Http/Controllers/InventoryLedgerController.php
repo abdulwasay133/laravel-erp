@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ProductWaste;
 use App\Models\Purchase;
 use App\Models\Sale;
 use App\Models\Setting;
@@ -16,7 +17,13 @@ class InventoryLedgerController extends Controller
 {
     public function index()
     {
-        return view('reports.inventory_ledger');
+        $stats = [
+            'total_purchases' => Purchase::where('status', 'received')->count(),
+            'total_sales' => Sale::where('status', 'completed')->count(),
+            'purchase_amount' => Purchase::where('status', 'received')->sum('grand_total'),
+            'sale_amount' => Sale::where('status', 'completed')->sum('total_amount'),
+        ];
+        return view('reports.inventory_ledger', compact('stats'));
     }
 
     public function search(Request $request)
@@ -141,6 +148,22 @@ class InventoryLedgerController extends Controller
                 'remark' => trim(($customerName ? $customerName . ' - ' : '') . ($sale->notes ?? 'Sale completed')),
                 'debit' => 0,
                 'credit' => $sale->total_amount,
+            ]);
+        }
+
+        $wastes = ProductWaste::whereBetween('waste_date', [$start->toDateString(), $end->toDateString()])
+            ->orderBy('waste_date', 'asc')
+            ->get();
+
+        foreach ($wastes as $waste) {
+            $productName = optional($waste->product)->name ?? 'Product';
+            $records->push([
+                'date' => Carbon::parse($waste->waste_date)->toDateString(),
+                'voucher_no' => 'WST-' . $waste->id,
+                'type' => 'Waste',
+                'remark' => $productName . ' - ' . ($waste->reason ?? 'Waste/Expiry write-off'),
+                'debit' => 0,
+                'credit' => $waste->total_cost,
             ]);
         }
 

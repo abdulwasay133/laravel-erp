@@ -21,23 +21,23 @@ class SupplierController extends Controller
                 return $row->active == 1 ? 'Active' : 'Inactive';
             })
             ->addColumn('action', function($row){
-                $btn = '<a href="edit/'.$row->id.'" data-id="'.$row->id.'" class="btn btn-primary btn-sm edit">
-                    <i class="bi bi-pencil"></i> 
-                </a>';
-
-                $btn .= ' <button data-id="'.$row->id.'" class="btn btn-secondary btn-sm edit viewSupplier">
-                <i class="bi bi-eye"></i> 
-                </button>';
-
-                $btn .= ' <button data-url="'.route('supplier.destroy', $row->id).'" class="btn btn-danger btn-sm delete">
-                <i class="bi bi-trash"></i>
-                </button>';
+                $btn = '<div class="d-flex flex-nowrap gap-1">';
+                $btn .= '<a href="edit/'.$row->id.'" data-id="'.$row->id.'" class="btn btn-primary btn-sm edit"><i class="bi bi-pencil"></i></a>';
+                $btn .= '<button data-id="'.$row->id.'" class="btn btn-secondary btn-sm edit viewSupplier"><i class="bi bi-eye"></i></button>';
+                $btn .= '<button data-url="'.route('supplier.destroy', $row->id).'" class="btn btn-danger btn-sm delete"><i class="bi bi-trash"></i></button>';
+                $btn .= '</div>';
                 return $btn;
             })
             ->rawColumns(['status', 'action','name'])
             ->make(true);
         }
-        return view('supplier.index');
+        $stats = [
+            'total' => Supplier::count(),
+            'active' => Supplier::where('active', 1)->count(),
+            'total_balance' => Supplier::sum('balance'),
+        ];
+
+        return view('supplier.index', compact('stats'));
     }
 
     public function view(int $id){

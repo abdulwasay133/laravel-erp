@@ -119,6 +119,10 @@ table.dataTable tbody td {
     vertical-align: middle;
 }
 
+table.dataTable tbody td.text-center {
+    white-space: nowrap;
+}
+
 table.dataTable tbody tr {
     transition: background-color 180ms ease;
 }

@@ -8,9 +8,11 @@ use App\Models\SalePayment;
 use App\Models\BankAccount;
 use App\Models\Customer;
 use App\Models\CustomerTransaction;
+use App\Models\Employee;
 use App\Models\Product;
 use App\Models\ProductBatch;
 use App\Models\Setting;
+use App\Services\CommissionService;
 use App\Services\HandlesAccounting;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -64,7 +66,16 @@ class SaleController extends Controller
                 ->make(true);
         }
 
-        return view('sale.index');
+        $stats = [
+            'total' => Sale::count(),
+            'completed' => Sale::where('status', 'completed')->count(),
+            'todays_sales' => Sale::where('status', 'completed')
+                ->whereDate('sale_date', today())
+                ->sum('total_amount'),
+            'total_revenue' => Sale::where('status', 'completed')->sum('total_amount'),
+        ];
+
+        return view('sale.index', compact('stats'));
     }
 
     /**
@@ -80,8 +91,9 @@ class SaleController extends Controller
         $customers = Customer::orderBy('first_name')->get();
         $products = Product::with('suppliers')->get();
         $bankAccounts = BankAccount::orderBy('bank_name')->get();
+        $orderBookers = Employee::where('is_order_booker', true)->orderBy('first_name')->get();
 
-        return view('sale.create', compact('invoiceNo', 'customers', 'products', 'bankAccounts'));
+        return view('sale.create', compact('invoiceNo', 'customers', 'products', 'bankAccounts', 'orderBookers'));
     }
 
     /**
@@ -92,6 +104,7 @@ class SaleController extends Controller
         $validated = $request->validate([
             'invoice_no' => 'required|string|unique:sales',
             'customer_id' => 'required|exists:customers,id',
+            'order_booker_id' => 'nullable|exists:employees,id',
             'sale_date' => 'required|date',
             'status' => 'in:draft,completed',
             'items' => 'required|array|min:1',
@@ -131,6 +144,7 @@ class SaleController extends Controller
         $sale = new Sale();
         $sale->invoice_no = $validated['invoice_no'];
         $sale->customer_id = $validated['customer_id'];
+        $sale->order_booker_id = $validated['order_booker_id'] ?? null;
         $sale->created_by = auth()->id();
         $sale->sale_date = $validated['sale_date'];
         $sale->status = $validated['status'] ?? 'completed';
@@ -288,6 +302,14 @@ class SaleController extends Controller
             }
         }
 
+        if ($sale->order_booker_id && $sale->status === 'completed') {
+            try {
+                app(CommissionService::class)->generateCommission($sale);
+            } catch (\Exception $e) {
+                \Log::warning('Commission generation failed for sale #' . $sale->id . ': ' . $e->getMessage());
+            }
+        }
+
         return redirect()->route('sale.show', $sale->id)
             ->with('success', 'Sale created successfully!');
     }
@@ -359,8 +381,9 @@ class SaleController extends Controller
         $customers = Customer::orderBy('first_name')->get();
         $products = Product::with('suppliers')->get();
         $bankAccounts = BankAccount::orderBy('bank_name')->get();
+        $orderBookers = Employee::where('is_order_booker', true)->orderBy('first_name')->get();
 
-        return view('sale.edit', compact('sale', 'customers', 'products', 'bankAccounts'));
+        return view('sale.edit', compact('sale', 'customers', 'products', 'bankAccounts', 'orderBookers'));
     }
 
     /**
@@ -376,6 +399,7 @@ class SaleController extends Controller
 
         $validated = $request->validate([
             'customer_id' => 'required|exists:customers,id',
+            'order_booker_id' => 'nullable|exists:employees,id',
             'sale_date' => 'required|date',
             'status' => 'in:draft,completed',
             'items' => 'required|array|min:1',
@@ -488,6 +512,7 @@ class SaleController extends Controller
         $newBalance = $subtotal - $validated['paid_amount'];
 
         $sale->customer_id = $validated['customer_id'];
+        $sale->order_booker_id = $validated['order_booker_id'] ?? null;
         $sale->sale_date = $validated['sale_date'];
         $sale->status = $validated['status'];
         $sale->notes = $validated['notes'] ?? null;
@@ -611,6 +636,14 @@ class SaleController extends Controller
             }
 
             $customer->save();
+        }
+
+        if ($sale->order_booker_id && $sale->status === 'completed') {
+            try {
+                app(CommissionService::class)->generateCommission($sale);
+            } catch (\Exception $e) {
+                \Log::warning('Commission generation failed on sale update #' . $sale->id . ': ' . $e->getMessage());
+            }
         }
 
         return redirect()->route('sale.show', $sale->id)

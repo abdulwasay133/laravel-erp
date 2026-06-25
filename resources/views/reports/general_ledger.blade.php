@@ -9,6 +9,60 @@
 @endsection
 
 @section('content')
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-1 text-white-50">Total Accounts</h6>
+                        <h5 class="mb-0 fw-bold">{{ $stats['total_accounts'] }}</h5>
+                    </div>
+                    <i class="bi bi-journal fs-1 text-white-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-1 text-white-50">General Heads</h6>
+                        <h5 class="mb-0 fw-bold">{{ $stats['general_heads'] }}</h5>
+                    </div>
+                    <i class="bi bi-diagram-3 fs-1 text-white-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-1 text-white-50">Transaction Heads</h6>
+                        <h5 class="mb-0 fw-bold">{{ $stats['transaction_heads'] }}</h5>
+                    </div>
+                    <i class="bi bi-list-ul fs-1 text-white-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-1 text-white-50">Opening Balances</h6>
+                        <h5 class="mb-0 fw-bold">{{ $stats['opening_balances'] }}</h5>
+                    </div>
+                    <i class="bi bi-cash-stack fs-1 text-white-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="card">
     <div class="card-header">
         <h6 class="card-title">General Ledger</h6>

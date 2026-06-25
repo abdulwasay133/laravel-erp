@@ -17,7 +17,15 @@ class CustomerLedgerController extends Controller
     public function index()
     {
         $customers = Customer::all()->sortBy('first_name');
-        return view('customer.ledger', compact('customers'));
+
+        $stats = [
+            'total_customers' => Customer::count(),
+            'total_entries' => CustomerTransaction::count(),
+            'total_debit' => CustomerTransaction::sum('debit'),
+            'total_credit' => CustomerTransaction::sum('credit'),
+        ];
+
+        return view('customer.ledger', compact('customers', 'stats'));
     }
 
     public function search(Request $request)
@@ -141,8 +149,15 @@ class CustomerLedgerController extends Controller
                 ->make(true);
         }
 
-        // initial load - view will call AJAX to populate table
-        $customers = collect();
-        return view('customer.credit_customers', compact('customers'));
+        $customers = Customer::where('balance', '>', 0)->get();
+
+        $stats = [
+            'total' => $customers->count(),
+            'total_balance' => $customers->sum('balance'),
+            'avg_balance' => $customers->count() > 0 ? $customers->avg('balance') : 0,
+            'max_balance' => $customers->count() > 0 ? $customers->max('balance') : 0,
+        ];
+
+        return view('customer.credit_customers', compact('customers', 'stats'));
     }
 }

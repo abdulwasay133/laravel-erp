@@ -578,11 +578,25 @@ function toggleExpiryFields(idx, select) {
     if (!row) return;
     const opt = select.options[select.selectedIndex];
     // Disable fields when product does NOT track expiry (always visible)
-    const isExpiry = opt && opt.value && opt.dataset.isExpiry ? parseInt(opt.dataset.isExpiry) : 1;
+    const isExpiry = opt && opt.value && opt.dataset.isExpiry ? parseInt(opt.dataset.isExpiry) : 0;
     const batchInput = row.querySelector('.batch-cell input');
     const expiryInput = row.querySelector('.expiry-cell input');
-    if (batchInput) batchInput.disabled = !isExpiry;
-    if (expiryInput) expiryInput.disabled = !isExpiry;
+    if (batchInput) {
+        batchInput.disabled = !isExpiry;
+        if (isExpiry) {
+            batchInput.setAttribute('required', 'required');
+        } else {
+            batchInput.removeAttribute('required');
+        }
+    }
+    if (expiryInput) {
+        expiryInput.disabled = !isExpiry;
+        if (isExpiry) {
+            expiryInput.setAttribute('required', 'required');
+        } else {
+            expiryInput.removeAttribute('required');
+        }
+    }
 }
 
 // ── Alert when user tries to edit disabled batch/expiry fields ────────────

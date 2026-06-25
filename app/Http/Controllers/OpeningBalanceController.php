@@ -43,7 +43,14 @@ class OpeningBalanceController extends Controller
                 ->make(true);
         }
 
-        return view('opening-balances.index');
+        $stats = [
+            'total_entries' => OpeningBalance::count(),
+            'total_amount' => OpeningBalance::sum('amount'),
+            'total_accounts' => OpeningBalance::distinct('chart_of_account_id')->count('chart_of_account_id'),
+            'max_amount' => OpeningBalance::max('amount') ?? 0,
+        ];
+
+        return view('opening-balances.index', compact('stats'));
     }
 
     /**

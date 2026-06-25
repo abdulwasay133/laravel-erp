@@ -10,6 +10,61 @@
 
 @section('content')
 
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-1 text-white-50">Total Products</h6>
+                        <h5 class="mb-0 fw-bold">{{ $stats['total'] }}</h5>
+                    </div>
+                    <i class="bi bi-box fs-1 text-white-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-1 text-white-50">Active Products</h6>
+                        <h5 class="mb-0 fw-bold">{{ $stats['active'] }}</h5>
+                    </div>
+                    <i class="bi bi-check-circle fs-1 text-white-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-1 text-white-50">Low Stock</h6>
+                        <h5 class="mb-0 fw-bold">{{ $stats['low_stock'] }}</h5>
+                    </div>
+                    <i class="bi bi-exclamation-triangle fs-1 text-white-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-1 text-white-50">Total Stock</h6>
+                        <h5 class="mb-0 fw-bold">{{ number_format($stats['total_stock']) }}</h5>
+                    </div>
+                    <i class="bi bi-boxes fs-1 text-white-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 {{-- ── Card ─────────────────────────────────────────────── --}}
 <div class="card">
     <div class="card-header justify-content-between">
@@ -33,7 +88,7 @@
                         <th>Unit</th>
                         <th>Category</th>
                         <th>Status</th>
-                        <th width="120" class="text-center">Action</th>
+                        <th width="160" class="text-center">Action</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -158,7 +213,7 @@ $(function () {
             { data: 'unit', name: 'unit' },
             { data: 'category', name: 'category' },
             { data: 'status', name: 'status' },
-            { data: 'action', name: 'action', orderable: false, searchable: false },
+            { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center' },
         ],
 
         pageLength : 10,

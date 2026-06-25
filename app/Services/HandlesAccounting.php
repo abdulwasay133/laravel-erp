@@ -53,6 +53,12 @@ trait HandlesAccounting
         $this->accounting->postCustomerPayment($customerPaymentId, $amount, $paymentMethod, $paymentType);
     }
 
+    protected function postWasteAccounting(int $wasteId, float $totalCost, string $wasteDate): void
+    {
+        $this->initAccounting();
+        $this->accounting->postWaste($wasteId, $totalCost, $wasteDate);
+    }
+
     protected function reverseAccounting(string $referenceType, int $referenceId, string $reason = 'Reversed'): void
     {
         $this->initAccounting();

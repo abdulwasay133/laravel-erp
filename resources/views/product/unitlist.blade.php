@@ -9,6 +9,35 @@
 
 @section('content')
 
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-1 text-white-50">Total Units</h6>
+                        <h5 class="mb-0 fw-bold">{{ $stats['total'] }}</h5>
+                    </div>
+                    <i class="bi bi-rulers fs-1 text-white-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-1 text-white-50">Active Units</h6>
+                        <h5 class="mb-0 fw-bold">{{ $stats['active'] }}</h5>
+                    </div>
+                    <i class="bi bi-check-circle fs-1 text-white-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 {{-- ── Card ─────────────────────────────────────────────── --}}
 <div class="card">
     <div class="card-header justify-content-between">

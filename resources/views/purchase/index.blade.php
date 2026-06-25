@@ -4,6 +4,61 @@
 @section('page-title', 'Purchase Orders')
 
 @section('content')
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-1 text-white-50">Total Purchases</h6>
+                        <h5 class="mb-0 fw-bold">{{ $stats['total'] }}</h5>
+                    </div>
+                    <i class="bi bi-cart-check fs-1 text-white-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-1 text-white-50">Received</h6>
+                        <h5 class="mb-0 fw-bold">{{ $stats['received'] }}</h5>
+                    </div>
+                    <i class="bi bi-check-circle fs-1 text-white-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-1 text-white-50">Total Amount</h6>
+                        <h5 class="mb-0 fw-bold">Rs. {{ number_format($stats['total_amount'], 0) }}</h5>
+                    </div>
+                    <i class="bi bi-cash-stack fs-1 text-white-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-1 text-white-50">Total Due</h6>
+                        <h5 class="mb-0 fw-bold">Rs. {{ number_format($stats['total_due'], 0) }}</h5>
+                    </div>
+                    <i class="bi bi-credit-card-2-front fs-1 text-white-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
         <div>

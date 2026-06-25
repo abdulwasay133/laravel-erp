@@ -18,7 +18,13 @@ class CashbookController extends Controller
 {
     public function index()
     {
-        return view('reports.cashbook');
+        $stats = [
+            'cash_adjustments' => CashAdjustment::count(),
+            'customer_payments' => CustomerPayment::count(),
+            'supplier_payments' => SupplierPayment::count(),
+            'cash_expenses' => Expense::where('payment_method', 'cash')->count(),
+        ];
+        return view('reports.cashbook', compact('stats'));
     }
 
     public function search(Request $request)

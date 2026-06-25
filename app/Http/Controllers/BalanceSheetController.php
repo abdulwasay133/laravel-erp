@@ -15,7 +15,13 @@ class BalanceSheetController extends Controller
 {
     public function index()
     {
-        return view('reports.balance_sheet');
+        $stats = [
+            'asset_accounts' => ChartOfAccount::where('type', 'asset')->count(),
+            'liability_accounts' => ChartOfAccount::where('type', 'liability')->count(),
+            'equity_accounts' => ChartOfAccount::where('type', 'equity')->count(),
+            'total_accounts' => ChartOfAccount::count(),
+        ];
+        return view('reports.balance_sheet', compact('stats'));
     }
 
     public function search(Request $request)

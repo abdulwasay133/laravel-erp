@@ -59,6 +59,18 @@
                         </div>
 
                         <div class="col-md-3">
+                            <label class="form-label fw-600">Order Booker</label>
+                            <select name="order_booker_id" class="form-select">
+                                <option value="">-- Select Order Booker --</option>
+                                @foreach($orderBookers as $booker)
+                                    <option value="{{ $booker->id }}" {{ old('order_booker_id') == $booker->id ? 'selected' : '' }}>
+                                        {{ $booker->first_name }} {{ $booker->last_name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
                             <label class="form-label fw-600">Sale Date <span class="text-danger">*</span></label>
                             <input type="date" name="sale_date"
                                    class="form-control @error('sale_date') is-invalid @enderror"

@@ -17,7 +17,15 @@ class SupplierLedgerController extends Controller
     public function index()
     {
         $suppliers = Supplier::all()->sortBy('first_name');
-        return view('supplier.ledger', compact('suppliers'));
+
+        $stats = [
+            'total_suppliers' => Supplier::count(),
+            'total_entries' => SupplierTransaction::count(),
+            'total_debit' => SupplierTransaction::sum('debit'),
+            'total_credit' => SupplierTransaction::sum('credit'),
+        ];
+
+        return view('supplier.ledger', compact('suppliers', 'stats'));
     }
 
     public function search(Request $request)

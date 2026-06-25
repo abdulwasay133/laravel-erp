@@ -126,6 +126,7 @@
     @stack('styles')
 </head>
 <body>
+<x-loading-overlay />
 <x-sweet-alert />
 <!-- Sidebar Overlay (mobile) -->
 <div class="sidebar-overlay" id="sidebarOverlay"></div>

@@ -417,6 +417,62 @@ class AccountingService
         ]);
     }
 
+    public function postWaste(int $wasteId, float $totalCost, string $wasteDate): JournalEntry
+    {
+        $wasteExpenseId = $this->getAccount('waste_expense');
+        $inventoryAccountId = $this->getAccount('inventory_asset');
+
+        return $this->postJournalEntry([
+            'voucher_no' => $this->generateVoucherNo(),
+            'date' => $wasteDate,
+            'description' => 'Product Waste #' . $wasteId,
+            'reference_type' => 'ProductWaste',
+            'reference_id' => $wasteId,
+            'lines' => [
+                [
+                    'chart_of_account_id' => $wasteExpenseId,
+                    'debit' => $totalCost,
+                    'credit' => 0,
+                    'description' => 'Inventory waste/expiry write-off',
+                ],
+                [
+                    'chart_of_account_id' => $inventoryAccountId,
+                    'debit' => 0,
+                    'credit' => $totalCost,
+                    'description' => 'Inventory reduction due to waste',
+                ],
+            ],
+        ]);
+    }
+
+    public function postCommissionPayment(int $commissionPaymentId, float $amount, string $paymentMethod = 'cash'): JournalEntry
+    {
+        $commissionExpenseId = $this->getAccount('commission_expense');
+        $cashAccountId = $this->getAccount($paymentMethod === 'bank' ? 'bank_account' : 'cash_account');
+
+        return $this->postJournalEntry([
+            'voucher_no' => $this->generateVoucherNo(),
+            'date' => now()->toDateString(),
+            'description' => 'Commission Payment #' . $commissionPaymentId,
+            'reference_type' => 'CommissionPayment',
+            'reference_id' => $commissionPaymentId,
+            'lines' => [
+                [
+                    'chart_of_account_id' => $commissionExpenseId,
+                    'debit' => $amount,
+                    'credit' => 0,
+                    'description' => 'Commission expense incurred',
+                ],
+                [
+                    'chart_of_account_id' => $cashAccountId,
+                    'debit' => 0,
+                    'credit' => $amount,
+                    'description' => 'Commission paid',
+                ],
+            ],
+        ]);
+    }
+
     public function postPurchaseReturn(int $purchaseReturnId, float $amount): JournalEntry
     {
         $apAccountId = $this->getAccount('accounts_payable');

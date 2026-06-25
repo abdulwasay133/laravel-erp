@@ -73,7 +73,14 @@ class ProductController extends Controller
             ])
             ->make(true);
         }
-        return view('product.index');
+        $stats = [
+            'total' => Product::count(),
+            'active' => Product::where('active', 1)->count(),
+            'low_stock' => Product::whereColumn('quantity', '<', 'alert_quantity')->where('alert_quantity', '>', 0)->count(),
+            'total_stock' => Product::sum('quantity'),
+        ];
+
+        return view('product.index', compact('stats'));
     }
 
 public function show(int $id)

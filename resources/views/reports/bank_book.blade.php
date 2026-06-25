@@ -9,6 +9,60 @@
 @endsection
 
 @section('content')
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-1 text-white-50">Bank Accounts</h6>
+                        <h5 class="mb-0 fw-bold">{{ $stats['total_accounts'] }}</h5>
+                    </div>
+                    <i class="bi bi-bank fs-1 text-white-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-1 text-white-50">Customer Bank Payments</h6>
+                        <h5 class="mb-0 fw-bold">{{ $stats['customer_payments'] }}</h5>
+                    </div>
+                    <i class="bi bi-people fs-1 text-white-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-1 text-white-50">Supplier Bank Payments</h6>
+                        <h5 class="mb-0 fw-bold">{{ $stats['supplier_payments'] }}</h5>
+                    </div>
+                    <i class="bi bi-truck fs-1 text-white-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-1 text-white-50">Bank Expenses</h6>
+                        <h5 class="mb-0 fw-bold">{{ $stats['bank_expenses'] }}</h5>
+                    </div>
+                    <i class="bi bi-receipt fs-1 text-white-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="card">
     <div class="card-header">
         <h6 class="card-title">Bank Book</h6>

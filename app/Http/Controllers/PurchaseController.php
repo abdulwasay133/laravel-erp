@@ -12,6 +12,7 @@ use App\Models\SupplierTransaction;
 use App\Services\HandlesAccounting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Carbon\Carbon;
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\SvgWriter;
@@ -53,7 +54,14 @@ class PurchaseController extends Controller
                 ->make(true);
         }
 
-        return view('purchase.index');
+        $stats = [
+            'total' => Purchase::count(),
+            'received' => Purchase::where('status', 'received')->count(),
+            'total_amount' => Purchase::sum('grand_total'),
+            'total_due' => Purchase::sum('due_amount'),
+        ];
+
+        return view('purchase.index', compact('stats'));
     }
 
     public function create()
@@ -115,6 +123,16 @@ class PurchaseController extends Controller
 
     public function store(Request $request)
     {
+        $items = $request->input('items', []);
+        if ($items) {
+            $items = array_map(function ($item) {
+                $item['batch_number'] = !empty($item['batch_number']) ? $item['batch_number'] : null;
+                $item['expiry_date'] = !empty($item['expiry_date']) ? $item['expiry_date'] : null;
+                return $item;
+            }, $items);
+            $request->merge(['items' => $items]);
+        }
+
         $validated = $request->validate([
             'reference' => 'nullable|string|max:255',
             'supplier_id' => 'required|exists:suppliers,id',
@@ -137,6 +155,22 @@ class PurchaseController extends Controller
             'items.*.batch_number' => 'nullable|string|max:255',
             'items.*.expiry_date' => 'nullable|date',
         ]);
+
+        foreach ($validated['items'] as $index => $item) {
+            $product = Product::find($item['product_id']);
+            if ($product && $product->is_expiry) {
+                $failures = [];
+                if (empty($item['batch_number'])) {
+                    $failures["items.$index.batch_number"] = __('Batch number is required for products with expiry tracking.');
+                }
+                if (empty($item['expiry_date'])) {
+                    $failures["items.$index.expiry_date"] = __('Expiry date is required for products with expiry tracking.');
+                }
+                if ($failures) {
+                    throw ValidationException::withMessages($failures);
+                }
+            }
+        }
 
         $refNo = $validated['reference'] ?? 'PO-' . now()->format('YmdHis');
         $paidAmount = $validated['paid_amount'] ?? 0;
@@ -320,6 +354,16 @@ class PurchaseController extends Controller
     {
         $purchase = Purchase::findOrFail($id);
 
+        $items = $request->input('items', []);
+        if ($items) {
+            $items = array_map(function ($item) {
+                $item['batch_number'] = !empty($item['batch_number']) ? $item['batch_number'] : null;
+                $item['expiry_date'] = !empty($item['expiry_date']) ? $item['expiry_date'] : null;
+                return $item;
+            }, $items);
+            $request->merge(['items' => $items]);
+        }
+
         $validated = $request->validate([
             'reference' => 'nullable|string|max:255',
             'supplier_id' => 'required|exists:suppliers,id',
@@ -342,6 +386,22 @@ class PurchaseController extends Controller
             'items.*.batch_number' => 'nullable|string|max:255',
             'items.*.expiry_date' => 'nullable|date',
         ]);
+
+        foreach ($validated['items'] as $index => $item) {
+            $product = Product::find($item['product_id']);
+            if ($product && $product->is_expiry) {
+                $failures = [];
+                if (empty($item['batch_number'])) {
+                    $failures["items.$index.batch_number"] = __('Batch number is required for products with expiry tracking.');
+                }
+                if (empty($item['expiry_date'])) {
+                    $failures["items.$index.expiry_date"] = __('Expiry date is required for products with expiry tracking.');
+                }
+                if ($failures) {
+                    throw ValidationException::withMessages($failures);
+                }
+            }
+        }
 
         $oldItems = $purchase->items()->get();
         $oldPaid = $purchase->paid_amount;

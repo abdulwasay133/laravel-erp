@@ -39,7 +39,14 @@ class SaleReturnController extends Controller
                 ->make(true);
         }
 
-        return view('sale-returns.index');
+        $stats = [
+            'total' => SaleReturn::count(),
+            'completed' => SaleReturn::where('status', 'completed')->count(),
+            'total_return_amount' => SaleReturn::where('status', 'completed')->sum('total_amount'),
+            'total_refund' => SaleReturn::where('status', 'completed')->sum('refund_amount'),
+        ];
+
+        return view('sale-returns.index', compact('stats'));
     }
 
     public function create()

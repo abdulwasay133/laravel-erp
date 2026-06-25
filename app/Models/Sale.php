@@ -36,4 +36,14 @@ class Sale extends Model
     {
         return $this->hasMany(SaleReturn::class);
     }
+
+    public function orderBooker()
+    {
+        return $this->belongsTo(Employee::class, 'order_booker_id');
+    }
+
+    public function commission()
+    {
+        return $this->hasOne(Commission::class);
+    }
 }

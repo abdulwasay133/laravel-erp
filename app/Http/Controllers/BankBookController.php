@@ -21,7 +21,13 @@ class BankBookController extends Controller
     public function index()
     {
         $bankAccounts = BankAccount::query()->orderBy('bank_name', 'asc')->get();
-        return view('reports.bank_book', compact('bankAccounts'));
+        $stats = [
+            'total_accounts' => BankAccount::count(),
+            'customer_payments' => CustomerPayment::where('payment_method', 'account')->count(),
+            'supplier_payments' => SupplierPayment::where('payment_method', 'account')->count(),
+            'bank_expenses' => Expense::where('payment_method', 'bank')->count(),
+        ];
+        return view('reports.bank_book', compact('bankAccounts', 'stats'));
     }
 
     public function search(Request $request)

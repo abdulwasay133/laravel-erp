@@ -92,6 +92,7 @@
     </style>
 </head>
 <body>
+    <x-loading-overlay />
     <div class="login-card">
         <div class="login-header">
             @php

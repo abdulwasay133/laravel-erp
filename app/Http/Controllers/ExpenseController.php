@@ -50,7 +50,14 @@ class ExpenseController extends Controller
                 ->make(true);
         }
 
-        return view('expenses.index');
+        $stats = [
+            'total_expenses' => Expense::count(),
+            'total_amount' => Expense::sum('amount'),
+            'cash_amount' => Expense::where('payment_method', 'cash')->sum('amount'),
+            'bank_amount' => Expense::where('payment_method', 'bank')->sum('amount'),
+        ];
+
+        return view('expenses.index', compact('stats'));
     }
 
     public function create()

@@ -54,7 +54,7 @@
 
                         <div class="col-md-6">
                             <label class="form-label fw-600">Select Customer <span class="text-danger">*</span></label>
-                            <select name="customer_id"
+                            <select name="customer_id" id="customerSelect"
                                     class="form-select @error('customer_id') is-invalid @enderror" required>
                                 <option value="">-- Select Customer --</option>
                                 @foreach($customers as $customer)
@@ -64,6 +64,10 @@
                                     </option>
                                 @endforeach
                             </select>
+                            <div id="customerDueInfo" class="mt-2" style="display: none;">
+                                <small class="text-muted">Due Amount:</small>
+                                <strong id="customerDueAmount" class="text-danger">0.00</strong>
+                            </div>
                         </div>
 
                         <div class="col-md-6">
@@ -93,7 +97,7 @@
                                 <option value="">-- Select Account --</option>
                                 @foreach($bankAccounts as $account)
                                     <option value="{{ $account->id }}" {{ old('bank_account_id', $payment->bank_account_id) == $account->id ? 'selected' : '' }}>
-                                        {{ $account->account_number }} - {{ $account->account_holder_name }}
+                                        {{ $account->bank_name }} - {{ $account->account_title }}
                                     </option>
                                 @endforeach
                             </select>
@@ -157,6 +161,30 @@
                 $('select[name="bank_account_id"]').prop('required', false);
             }
         }).trigger('change');
+
+        $('#customerSelect').change(function () {
+            const customerId = $(this).val();
+            if (!customerId) {
+                $('#customerDueInfo').hide();
+                return;
+            }
+            $.ajax({
+                url: '/customers/view/' + customerId,
+                type: 'GET',
+                success: function (data) {
+                    const balance = parseFloat(data.balance) || 0;
+                    $('#customerDueAmount').text(balance.toFixed(2));
+                    $('#customerDueInfo').show();
+                },
+                error: function () {
+                    $('#customerDueInfo').hide();
+                }
+            });
+        });
+
+        if ($('#customerSelect').val()) {
+            $('#customerSelect').trigger('change');
+        }
     });
 </script>
 @endpush

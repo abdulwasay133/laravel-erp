@@ -246,6 +246,11 @@ $(function () {
             alert('Please enter return quantity for at least one item.');
         }
     });
+
+    @if($refNo)
+        $('#refLookup').val('{{ $refNo }}');
+        $('#lookupBtn').trigger('click');
+    @endif
 });
 </script>
 @endpush

@@ -123,6 +123,12 @@
                 </a>
             </li>
 
+            <li class="nav-item">
+                <a href="{{ route('product-waste.index') }}" class="nav-link text-white {{ request()->routeIs('product-waste*') ? 'active' : '' }}">
+                    <i class="bi bi-trash3"></i> Product Waste
+                </a>
+            </li>
+
             <li class="nav-label">Accounting & Finance</li>
 
             <li class="nav-item">
@@ -237,6 +243,31 @@
                 </a>
             </li>
 
+            <li class="nav-label">Commissions</li>
+
+            <li class="nav-item">
+                <a href="{{ route('commissions.index') }}" class="nav-link text-white {{ request()->routeIs('commissions.index') ? 'active' : '' }}">
+                    <i class="bi bi-percent"></i> Commissions
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="{{ route('commission-payments.index') }}" class="nav-link text-white {{ request()->routeIs('commission-payments*') ? 'active' : '' }}">
+                    <i class="bi bi-wallet2"></i> Commission Payments
+                </a>
+            </li>
+
+            <li class="nav-item has-sub {{ request()->routeIs('commissions.reports.*') ? 'open' : '' }}">
+                <a href="#" class="nav-link text-white {{ request()->routeIs('commissions.reports.*') ? 'active' : '' }}">
+                    <i class="bi bi-bar-chart-line"></i> Commission Reports
+                </a>
+                <ul class="sub-menu">
+                    <li><a href="{{ route('commissions.reports.performance') }}" class="nav-link {{ request()->routeIs('commissions.reports.performance') ? 'active' : '' }}">Performance</a></li>
+                    <li><a href="{{ route('commissions.reports.due') }}" class="nav-link {{ request()->routeIs('commissions.reports.due') ? 'active' : '' }}">Due Report</a></li>
+                    <li><a href="{{ route('commissions.reports.monthly') }}" class="nav-link {{ request()->routeIs('commissions.reports.monthly') ? 'active' : '' }}">Monthly Report</a></li>
+                </ul>
+            </li>
+
             <li class="nav-label">System</li>
 
             <li class="nav-item">
@@ -248,6 +279,12 @@
             <li class="nav-item">
                 <a href="{{ route('users.index') }}" class="nav-link text-white {{ request()->routeIs('users*') ? 'active' : '' }}">
                     <i class="bi bi-people-fill"></i> User Management
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="{{ route('backup.index') }}" class="nav-link text-white {{ request()->routeIs('backup*') ? 'active' : '' }}">
+                    <i class="bi bi-database"></i> Database Backup
                 </a>
             </li>
 

@@ -68,6 +68,44 @@
     </div>
 </div>
 
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="bi bi-cash-coin text-primary-custom"></i>
+        <div>
+            <h6 class="card-title">Commission Settings</h6>
+            <p class="card-subtitle">Order booker commission configuration</p>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <div class="form-check form-switch mt-4">
+                    <input type="checkbox" name="is_order_booker" value="1" class="form-check-input" id="isOrderBooker"
+                           {{ old('is_order_booker', $employee->is_order_booker ?? false) ? 'checked' : '' }}
+                           onchange="toggleCommissionFields(this)">
+                    <label class="form-check-label fw-600" for="isOrderBooker">Order Booker</label>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-600">Commission Type</label>
+                <select name="commission_type" class="form-select" id="commissionType">
+                    <option value="fixed_percent" {{ old('commission_type', $employee->commission_type ?? '') === 'fixed_percent' ? 'selected' : '' }}>Fixed Percentage</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-600">Commission Rate (%)</label>
+                <input type="number" name="commission_rate" step="0.01" min="0" class="form-control" id="commissionRate"
+                       value="{{ old('commission_rate', $employee->commission_rate ?? '') }}" placeholder="5.00">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-600">Territory</label>
+                <input type="text" name="territory" class="form-control" id="territory"
+                       value="{{ old('territory', $employee->territory ?? '') }}" placeholder="e.g. North Region">
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="card d-flex flex-row justify-content-between align-items-center p-3">
     <div>
         <label class="toggle-switch mb-0">
@@ -85,3 +123,18 @@
         </button>
     </div>
 </div>
+
+@push('scripts')
+<script>
+function toggleCommissionFields(checkbox) {
+    const checked = checkbox.checked;
+    document.getElementById('commissionType').disabled = !checked;
+    document.getElementById('commissionRate').disabled = !checked;
+    document.getElementById('territory').disabled = !checked;
+}
+document.addEventListener('DOMContentLoaded', function () {
+    const cb = document.getElementById('isOrderBooker');
+    if (cb) toggleCommissionFields(cb);
+});
+</script>
+@endpush

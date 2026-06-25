@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use App\Models\CustomerPayment;
+use App\Models\CustomerTransaction;
 use App\Models\BankAccount;
 use App\Models\ChartOfAccount;
 use App\Models\SystemAccountMapping;
@@ -57,7 +58,14 @@ class CustomerPaymentController extends Controller
                 ->make(true);
         }
 
-        return view('customer-payments.index');
+        $stats = [
+            'total_payments' => CustomerPayment::count(),
+            'total_credit' => CustomerPayment::where('payment_type', 'credit')->sum('amount'),
+            'total_debit' => CustomerPayment::where('payment_type', 'debit')->sum('amount'),
+            'net_amount' => CustomerPayment::where('payment_type', 'credit')->sum('amount') - CustomerPayment::where('payment_type', 'debit')->sum('amount'),
+        ];
+
+        return view('customer-payments.index', compact('stats'));
     }
 
     public function create()
@@ -82,7 +90,28 @@ class CustomerPaymentController extends Controller
                 'description' => 'nullable|string',
             ]);
 
+            // Check sufficient balance for debit payments
+            if ($validated['payment_type'] === 'debit') {
+                if ($validated['payment_method'] === 'account' && $validated['bank_account_id']) {
+                    $bankAccount = BankAccount::findOrFail($validated['bank_account_id']);
+                    if ($bankAccount->current_balance < $validated['amount']) {
+                        throw new \Exception('Insufficient bank balance. Available: ' . number_format($bankAccount->current_balance, 2));
+                    }
+                } elseif ($validated['payment_method'] === 'cash') {
+                    $cashAccountId = SystemAccountMapping::getAccount('cash_account');
+                    if ($cashAccountId) {
+                        $cashAccount = ChartOfAccount::findOrFail($cashAccountId);
+                        if ($cashAccount->current_balance < $validated['amount']) {
+                            throw new \Exception('Insufficient cash balance. Available: ' . number_format($cashAccount->current_balance, 2));
+                        }
+                    }
+                }
+            }
+
             $payment = CustomerPayment::create($validated);
+
+            // Update customer balance and ledger
+            $this->updateCustomerBalance($validated, 'add');
 
             // Update Chart of Accounts
             $this->updateAccountBalance($validated, 'add');
@@ -137,17 +166,71 @@ class CustomerPaymentController extends Controller
                 'description' => 'nullable|string',
             ]);
 
-            // Revert old account balance
+            // Check sufficient balance for debit payments
+            if ($validated['payment_type'] === 'debit') {
+                if ($validated['payment_method'] === 'account' && $validated['bank_account_id']) {
+                    $bankAccount = BankAccount::findOrFail($validated['bank_account_id']);
+                    $availableBalance = $bankAccount->current_balance;
+
+                    if ($payment->payment_method === 'account' && $payment->bank_account_id == $validated['bank_account_id']) {
+                        if ($payment->payment_type === 'debit') {
+                            $availableBalance += $payment->amount;
+                        } else {
+                            $availableBalance -= $payment->amount;
+                        }
+                    }
+
+                    if ($availableBalance < $validated['amount']) {
+                        throw new \Exception('Insufficient bank balance. Available: ' . number_format($availableBalance, 2));
+                    }
+                } elseif ($validated['payment_method'] === 'cash') {
+                    $cashAccountId = SystemAccountMapping::getAccount('cash_account');
+                    if ($cashAccountId) {
+                        $cashAccount = ChartOfAccount::findOrFail($cashAccountId);
+                        $availableBalance = $cashAccount->current_balance;
+
+                        if ($payment->payment_method === 'cash') {
+                            if ($payment->payment_type === 'debit') {
+                                $availableBalance += $payment->amount;
+                            } else {
+                                $availableBalance -= $payment->amount;
+                            }
+                        }
+
+                        if ($availableBalance < $validated['amount']) {
+                            throw new \Exception('Insufficient cash balance. Available: ' . number_format($availableBalance, 2));
+                        }
+                    }
+                }
+            }
+
+            // Revert old customer balance
             $oldData = [
+                'customer_id' => $payment->customer_id,
+                'payment_type' => $payment->payment_type,
+                'payment_method' => $payment->payment_method,
+                'bank_account_id' => $payment->bank_account_id,
+                'amount' => $payment->amount,
+                'payment_date' => $payment->payment_date->format('Y-m-d'),
+                'voucher_no' => $payment->voucher_no,
+                'description' => $payment->description,
+            ];
+            $this->updateCustomerBalance($oldData, 'subtract');
+
+            // Revert old account balance
+            $oldAcctData = [
                 'payment_type' => $payment->payment_type,
                 'payment_method' => $payment->payment_method,
                 'bank_account_id' => $payment->bank_account_id,
                 'amount' => $payment->amount,
             ];
-            $this->updateAccountBalance($oldData, 'subtract');
+            $this->updateAccountBalance($oldAcctData, 'subtract');
 
             // Update payment
             $payment->update($validated);
+
+            // Apply new customer balance
+            $this->updateCustomerBalance($validated, 'add');
 
             // Add new account balance
             $this->updateAccountBalance($validated, 'add');
@@ -165,6 +248,16 @@ class CustomerPaymentController extends Controller
     {
         try {
             $payment = CustomerPayment::findOrFail($id);
+
+            // Revert customer balance
+            $this->updateCustomerBalance([
+                'customer_id' => $payment->customer_id,
+                'payment_type' => $payment->payment_type,
+                'amount' => $payment->amount,
+                'payment_date' => $payment->payment_date->format('Y-m-d'),
+                'voucher_no' => $payment->voucher_no,
+                'description' => $payment->description,
+            ], 'subtract');
 
             // Revert account balance
             $data = [
@@ -206,6 +299,53 @@ class CustomerPaymentController extends Controller
             return response()->json(['voucher_no' => 'CP-' . $newNo]);
         }
         return response()->json(['voucher_no' => 'CP-000001']);
+    }
+
+    /**
+     * Update customer balance and create ledger transaction
+     */
+    private function updateCustomerBalance($data, $operation = 'add')
+    {
+        $customer = Customer::findOrFail($data['customer_id']);
+        $lastBalance = CustomerTransaction::where('customer_id', $data['customer_id'])
+            ->orderByDesc('id')
+            ->value('balance') ?? $customer->balance ?? 0;
+
+        $paymentType = $data['payment_type'];
+        $amount = $data['amount'];
+
+        if ($operation === 'add') {
+            if ($paymentType === 'credit') {
+                $debit = $amount;
+                $credit = 0;
+            } else {
+                $debit = 0;
+                $credit = $amount;
+            }
+        } else {
+            if ($paymentType === 'credit') {
+                $debit = 0;
+                $credit = $amount;
+            } else {
+                $debit = $amount;
+                $credit = 0;
+            }
+        }
+
+        $newBalance = $lastBalance + $debit - $credit;
+
+        CustomerTransaction::create([
+            'customer_id' => $data['customer_id'],
+            'date' => $data['payment_date'],
+            'type' => $operation === 'add' ? 'payment' : 'payment_reverted',
+            'reference' => 'CP: ' . ($data['voucher_no'] ?? ''),
+            'description' => $data['description'] ?? ($paymentType === 'credit' ? 'Credit payment' : 'Debit payment'),
+            'debit' => $debit,
+            'credit' => $credit,
+            'balance' => $newBalance,
+        ]);
+
+        $customer->update(['balance' => $newBalance]);
     }
 
     /**

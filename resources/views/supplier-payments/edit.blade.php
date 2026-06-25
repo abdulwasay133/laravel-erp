@@ -54,7 +54,7 @@
 
                         <div class="col-md-6">
                             <label class="form-label fw-600">Select Supplier <span class="text-danger">*</span></label>
-                            <select name="supplier_id"
+                            <select name="supplier_id" id="supplierSelect"
                                     class="form-select @error('supplier_id') is-invalid @enderror" required>
                                 <option value="">-- Select Supplier --</option>
                                 @foreach($suppliers as $supplier)
@@ -64,6 +64,10 @@
                                     </option>
                                 @endforeach
                             </select>
+                            <div id="supplierDueInfo" class="mt-2" style="display: none;">
+                                <small class="text-muted">Due Amount:</small>
+                                <strong id="supplierDueAmount" class="text-danger">0.00</strong>
+                            </div>
                         </div>
 
                         <div class="col-md-6">
@@ -93,7 +97,7 @@
                                 <option value="">-- Select Account --</option>
                                 @foreach($bankAccounts as $account)
                                     <option value="{{ $account->id }}" {{ old('bank_account_id', $payment->bank_account_id) == $account->id ? 'selected' : '' }}>
-                                        {{ $account->account_number }} - {{ $account->account_holder_name }}
+                                        {{ $account->bank_name }} - {{ $account->account_title }}
                                     </option>
                                 @endforeach
                             </select>
@@ -157,6 +161,30 @@
                 $('select[name="bank_account_id"]').prop('required', false);
             }
         }).trigger('change');
+
+        $('#supplierSelect').change(function () {
+            const supplierId = $(this).val();
+            if (!supplierId) {
+                $('#supplierDueInfo').hide();
+                return;
+            }
+            $.ajax({
+                url: '/supplier/view/' + supplierId,
+                type: 'GET',
+                success: function (data) {
+                    const balance = parseFloat(data.balance) || 0;
+                    $('#supplierDueAmount').text(balance.toFixed(2));
+                    $('#supplierDueInfo').show();
+                },
+                error: function () {
+                    $('#supplierDueInfo').hide();
+                }
+            });
+        });
+
+        if ($('#supplierSelect').val()) {
+            $('#supplierSelect').trigger('change');
+        }
     });
 </script>
 @endpush

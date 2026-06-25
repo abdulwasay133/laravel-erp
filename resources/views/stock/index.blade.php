@@ -8,6 +8,62 @@
 @endsection
 
 @section('content')
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-1 text-white-50">Products in Stock</h6>
+                        <h5 class="mb-0 fw-bold">{{ $stats['total_products'] }}</h5>
+                    </div>
+                    <i class="bi bi-box fs-1 text-white-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-1 text-white-50">Total Stock Qty</h6>
+                        <h5 class="mb-0 fw-bold">{{ number_format($stats['total_stock_qty']) }}</h5>
+                    </div>
+                    <i class="bi bi-boxes fs-1 text-white-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-1 text-white-50">Stock Sale Value</h6>
+                        <h5 class="mb-0 fw-bold">Rs. {{ number_format($stats['total_stock_sale_value'], 2) }}</h5>
+                    </div>
+                    <i class="bi bi-currency-dollar fs-1 text-white-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-1 text-white-50">Stock Purchase Value</h6>
+                        <h5 class="mb-0 fw-bold">Rs. {{ number_format($stats['total_stock_purchase_value'], 2) }}</h5>
+                    </div>
+                    <i class="bi bi-cart fs-1 text-white-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="card">
     <div class="card-header">
         <h6 class="card-title">Stock Report</h6>
@@ -124,39 +180,15 @@ $(function () {
         },
         footerCallback: function(row, data, start, end, display) {
             var api = this.api();
+            var json = api.ajax.json();
 
-            // Remove formatting to get integer values
-            var parseCurrency = function(value) {
-                if (typeof value === 'string') {
-                    return parseFloat(value.replace(/[^0-9.-]+/g, ''));
-                }
-                return value;
-            };
-
-            // Calculate totals for all data (not just current page)
-            var totalInQty = 0;
-            var totalOutQty = 0;
-            var totalStock = 0;
-            var totalStockSalePrice = 0;
-            var totalStockPurchasePrice = 0;
-
-            // Get all data from the table
-            var allData = table.rows().data();
-
-            allData.each(function(row) {
-                totalInQty += parseInt(row.in_qty) || 0;
-                totalOutQty += parseInt(row.out_qty) || 0;
-                totalStock += parseInt(row.stock) || 0;
-                totalStockSalePrice += parseCurrency(row.stock_sale_price) || 0;
-                totalStockPurchasePrice += parseCurrency(row.stock_purchase_price) || 0;
-            });
-
-            // Update footer
-            $(api.column(4).footer()).html(totalInQty);
-            $(api.column(5).footer()).html(totalOutQty);
-            $(api.column(6).footer()).html(totalStock);
-            $(api.column(7).footer()).html('Rs. ' + totalStockSalePrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
-            $(api.column(8).footer()).html('Rs. ' + totalStockPurchasePrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+            if (json && json.totals) {
+                $(api.column(4).footer()).html(json.totals.total_in_qty);
+                $(api.column(5).footer()).html(json.totals.total_out_qty);
+                $(api.column(6).footer()).html(json.totals.total_stock);
+                $(api.column(7).footer()).html(json.totals.total_stock_sale_price);
+                $(api.column(8).footer()).html(json.totals.total_stock_purchase_price);
+            }
         }
     });
 });

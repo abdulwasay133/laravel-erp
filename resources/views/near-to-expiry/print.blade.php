@@ -20,6 +20,7 @@
                 <th>S.no</th>
                 <th>Product Name</th>
                 <th>Batch No</th>
+                <th>Purchase Invoice</th>
                 <th class="text-center">Qty Left</th>
                 <th>Expiry Date</th>
             </tr>
@@ -30,12 +31,13 @@
                     <td>{{ $index + 1 }}</td>
                     <td>{{ $batch->product_name }}</td>
                     <td>{{ $batch->batch_number }}</td>
+                    <td>{{ $batch->purchase_ref ?? '-' }}</td>
                     <td class="text-center">{{ $batch->quantity }}</td>
                     <td>{{ \Carbon\Carbon::parse($batch->expiry_date)->format('d M Y') }}</td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="5" class="text-center text-muted">No near to expiry products found.</td>
+                    <td colspan="6" class="text-center text-muted">No near to expiry products found.</td>
                 </tr>
             @endforelse
         </tbody>

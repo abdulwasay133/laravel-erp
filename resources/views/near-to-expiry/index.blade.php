@@ -8,6 +8,62 @@
 @endsection
 
 @section('content')
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-1 text-white-50">Near-to-Expiry Batches</h6>
+                        <h5 class="mb-0 fw-bold">{{ $stats['total_batches'] }}</h5>
+                    </div>
+                    <i class="bi bi-exclamation-triangle fs-1 text-white-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-1 text-white-50">Total Quantity</h6>
+                        <h5 class="mb-0 fw-bold">{{ number_format($stats['total_quantity']) }}</h5>
+                    </div>
+                    <i class="bi bi-boxes fs-1 text-white-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-1 text-white-50">Critical (&le;7 days)</h6>
+                        <h5 class="mb-0 fw-bold">{{ $stats['critical'] }}</h5>
+                    </div>
+                    <i class="bi bi-clock fs-1 text-white-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-1 text-white-50">Expired</h6>
+                        <h5 class="mb-0 fw-bold">{{ $stats['expired'] }}</h5>
+                    </div>
+                    <i class="bi bi-calendar-x fs-1 text-white-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
         <div>
@@ -28,9 +84,11 @@
                         <th width="50">#</th>
                         <th>Product Name</th>
                         <th>Batch No</th>
+                        <th>Purchase Invoice</th>
                         <th>Qty Left</th>
                         <th>Expiry Date</th>
                         <th>Status</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -38,12 +96,13 @@
         </div>
     </div>
 </div>
+
 @endsection
 
 @push('scripts')
 <script>
 $(function () {
-    $('#nearExpiryTable').DataTable({
+    const table = $('#nearExpiryTable').DataTable({
         processing: true,
         serverSide: true,
         ajax: {
@@ -54,13 +113,15 @@ $(function () {
             { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
             { data: 'product_name', name: 'product_name' },
             { data: 'batch_number', name: 'batch_number' },
+            { data: 'purchase_ref', name: 'purchase_ref' },
             { data: 'quantity', name: 'quantity', className: 'text-center' },
             { data: 'expiry_date', name: 'expiry_date' },
             { data: 'expiry_status', name: 'expiry_status', orderable: false, searchable: false },
+            { data: 'action', name: 'action', orderable: false, searchable: false },
         ],
         pageLength: 10,
         lengthMenu: [[10, 15, 25, 50, 100], [10, 15, 25, 50, 100]],
-        order: [[4, 'asc']],
+        order: [[5, 'asc']],
         dom: '<"d-flex justify-content-between align-items-center mb-3"lBf>rtip',
         buttons: [
             {
@@ -113,6 +174,37 @@ $(function () {
             zeroRecords: '<div class="text-center py-3 text-muted"><i class="bi bi-inbox d-block fs-4 mb-1"></i>No near to expiry products found</div>'
         },
     });
+
+    $(document).on('click', '.waste-batch', function () {
+        const id = $(this).data('id');
+        Swal.fire({
+            title: 'Waste this batch?',
+            text: 'This will set the batch quantity to 0 and reduce product stock.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'Yes, waste it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '{{ route("near-to-expiry.waste") }}',
+                    type: 'POST',
+                    data: {
+                        id: id,
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function (res) {
+                        Swal.fire({ icon: 'success', title: 'Success', text: res.message, timer: 2000, showConfirmButton: false });
+                        table.draw(false);
+                    },
+                    error: function (xhr) {
+                        Swal.fire({ icon: 'error', title: 'Error', text: xhr.responseJSON?.message || 'Something went wrong.' });
+                    }
+                });
+            }
+        });
+    });
+
 });
 </script>
 @endpush

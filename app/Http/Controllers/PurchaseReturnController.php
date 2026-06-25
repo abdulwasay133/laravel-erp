@@ -39,15 +39,23 @@ class PurchaseReturnController extends Controller
                 ->make(true);
         }
 
-        return view('purchase-returns.index');
+        $stats = [
+            'total' => PurchaseReturn::count(),
+            'completed' => PurchaseReturn::where('status', 'completed')->count(),
+            'total_return_amount' => PurchaseReturn::where('status', 'completed')->sum('total_amount'),
+            'total_refund' => PurchaseReturn::where('status', 'completed')->sum('refund_amount'),
+        ];
+
+        return view('purchase-returns.index', compact('stats'));
     }
 
     public function create()
     {
         $returnNo = $this->generateReturnNo();
         $bankAccounts = BankAccount::select('id', 'bank_name', 'account_number', 'account_title')->get();
+        $refNo = request('ref_no');
 
-        return view('purchase-returns.create', compact('returnNo', 'bankAccounts'));
+        return view('purchase-returns.create', compact('returnNo', 'bankAccounts', 'refNo'));
     }
 
     public function lookup(Request $request)

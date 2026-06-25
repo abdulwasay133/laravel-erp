@@ -29,7 +29,12 @@ class CategoryController extends Controller
             ->rawColumns(['status', 'action'])
             ->make(true);
         }
-        return view('category.index');
+        $stats = [
+            'total' => Category::count(),
+            'active' => Category::where('active', 1)->count(),
+        ];
+
+        return view('category.index', compact('stats'));
     }
 
     public function create(){

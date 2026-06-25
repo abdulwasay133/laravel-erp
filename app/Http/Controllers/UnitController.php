@@ -37,7 +37,12 @@ class UnitController extends Controller
                 ->make(true);
         }
 
-        return view('product.unitlist');
+        $stats = [
+            'total' => Unit::count(),
+            'active' => Unit::where('active', 1)->count(),
+        ];
+
+        return view('product.unitlist', compact('stats'));
     }
 
     public function create()

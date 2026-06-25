@@ -48,6 +48,15 @@ class POSController extends Controller
         $sessions = POSSession::select('id')->where('status', 'open')->get();
         $customers = \App\Models\Customer::orderBy('first_name')->get(['id', 'first_name', 'last_name', 'phone']);
 
-        return view('pos.list', compact('transactions', 'sessions', 'customers'));
+        $stats = [
+            'total' => POSTransaction::count(),
+            'completed' => POSTransaction::where('status', 'completed')->count(),
+            'todays_sales' => POSTransaction::where('status', 'completed')
+                ->whereDate('transaction_at', today())
+                ->sum('grand_total'),
+            'total_revenue' => POSTransaction::where('status', 'completed')->sum('grand_total'),
+        ];
+
+        return view('pos.list', compact('transactions', 'sessions', 'customers', 'stats'));
     }
 }

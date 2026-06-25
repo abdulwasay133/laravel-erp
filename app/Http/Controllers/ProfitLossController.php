@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CashAdjustment;
 use App\Models\Expense;
+use App\Models\ProductWaste;
 use App\Models\Purchase;
 use App\Models\Sale;
 use App\Models\Setting;
@@ -18,7 +19,13 @@ class ProfitLossController extends Controller
 {
     public function index()
     {
-        return view('reports.profit_loss');
+        $stats = [
+            'total_sales' => Sale::count(),
+            'sale_amount' => Sale::sum('total_amount'),
+            'total_purchases' => Purchase::count(),
+            'purchase_amount' => Purchase::sum('grand_total'),
+        ];
+        return view('reports.profit_loss', compact('stats'));
     }
 
     public function search(Request $request)
@@ -103,6 +110,7 @@ class ProfitLossController extends Controller
         $expenseAdjustments = CashAdjustment::whereHas('chartOfAccount', fn ($query) => $query->where('type', 'expense'))
             ->whereBetween('adjustment_date', [$start->toDateString(), $end->toDateString()]);
         $expenseRecords = Expense::whereBetween('expense_date', [$start->toDateString(), $end->toDateString()]);
+        $wasteRecords = ProductWaste::whereBetween('waste_date', [$start->toDateString(), $end->toDateString()]);
 
         return collect([
             [
@@ -125,6 +133,13 @@ class ProfitLossController extends Controller
                 'records_count' => $expenseRecords->count() + $expenseAdjustments->count(),
                 'effect' => 'deduction',
                 'amount' => (float) $expenseRecords->sum('amount') + (float) $expenseAdjustments->sum('amount'),
+            ],
+            [
+                'particular' => 'Waste/Expiry',
+                'description' => 'Product waste and expiry write-offs',
+                'records_count' => $wasteRecords->count(),
+                'effect' => 'deduction',
+                'amount' => (float) $wasteRecords->sum('total_cost'),
             ],
         ]);
     }

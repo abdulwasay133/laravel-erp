@@ -59,6 +59,10 @@ class EmployeeController extends Controller
             'joining_date' => 'required|date',
             'address' => 'nullable|string',
             'status' => 'nullable',
+            'is_order_booker' => 'nullable',
+            'commission_type' => 'nullable|string|max:50',
+            'commission_rate' => 'nullable|numeric|min:0|max:999999.99',
+            'territory' => 'nullable|string|max:255',
         ]);
 
         Employee::create([
@@ -73,6 +77,10 @@ class EmployeeController extends Controller
             'joining_date' => $request->joining_date,
             'address' => $request->address,
             'status' => $request->status ?? true,
+            'is_order_booker' => $request->boolean('is_order_booker'),
+            'commission_type' => $request->commission_type ?? 'fixed_percent',
+            'commission_rate' => $request->commission_rate ?? 0,
+            'territory' => $request->territory,
         ]);
 
         return redirect()->route('employees.index')->with('success', 'Employee created successfully.');
@@ -97,6 +105,10 @@ class EmployeeController extends Controller
             'joining_date' => 'required|date',
             'address' => 'nullable|string',
             'status' => 'nullable',
+            'is_order_booker' => 'nullable',
+            'commission_type' => 'nullable|string|max:50',
+            'commission_rate' => 'nullable|numeric|min:0|max:999999.99',
+            'territory' => 'nullable|string|max:255',
         ]);
 
         $employee->update([
@@ -111,6 +123,10 @@ class EmployeeController extends Controller
             'joining_date' => $request->joining_date,
             'address' => $request->address,
             'status' => $request->status ?? true,
+            'is_order_booker' => $request->boolean('is_order_booker'),
+            'commission_type' => $request->commission_type ?? 'fixed_percent',
+            'commission_rate' => $request->commission_rate ?? 0,
+            'territory' => $request->territory,
         ]);
 
         return redirect()->route('employees.index')->with('success', 'Employee updated successfully.');

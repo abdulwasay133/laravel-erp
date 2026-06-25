@@ -11,7 +11,7 @@ class CustomerController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            return DataTables::of(Customer::query())
+            return DataTables::of(Customer::query()->whereRaw("LOWER(CONCAT(first_name, ' ', last_name)) NOT LIKE '%walk-in%'"))
                 ->addIndexColumn()
                 ->addColumn('name', function ($row) {
                     return $row->first_name . ' ' . $row->last_name;
@@ -32,7 +32,16 @@ class CustomerController extends Controller
                 ->rawColumns(['action'])
                 ->make(true);
         }
-        return view('customer.index');
+        $stats = [
+            'total' => Customer::whereRaw("LOWER(CONCAT(first_name, ' ', last_name)) NOT LIKE '%walk-in%'")->count(),
+            'active' => Customer::where('status', 'active')
+                ->whereRaw("LOWER(CONCAT(first_name, ' ', last_name)) NOT LIKE '%walk-in%'")->count(),
+            'credit_customers' => Customer::where('balance', '>', 0)
+                ->whereRaw("LOWER(CONCAT(first_name, ' ', last_name)) NOT LIKE '%walk-in%'")->count(),
+            'total_balance' => Customer::whereRaw("LOWER(CONCAT(first_name, ' ', last_name)) NOT LIKE '%walk-in%'")->sum('balance'),
+        ];
+
+        return view('customer.index', compact('stats'));
     }
 
     public function create()
@@ -125,6 +134,12 @@ class CustomerController extends Controller
         ]);
 
         return redirect()->route('customers.index')->with('success', 'Customer updated successfully.');
+    }
+
+    public function view(int $id)
+    {
+        $customer = Customer::findOrFail($id);
+        return response()->json($customer);
     }
 
     public function show(int $id)

@@ -27,7 +27,14 @@ class GeneralLedgerController extends Controller
             ->orderBy('code')
             ->get();
 
-        return view('reports.general_ledger', compact('generalHeads', 'transactionHeads'));
+        $stats = [
+            'total_accounts' => ChartOfAccount::count(),
+            'general_heads' => ChartOfAccount::active()->roots()->count(),
+            'transaction_heads' => ChartOfAccount::active()->whereNotNull('parent_id')->count(),
+            'opening_balances' => OpeningBalance::count(),
+        ];
+
+        return view('reports.general_ledger', compact('generalHeads', 'transactionHeads', 'stats'));
     }
 
     public function search(Request $request)

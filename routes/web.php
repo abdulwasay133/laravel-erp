@@ -128,6 +128,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/delete/{id}', [App\Http\Controllers\CustomerController::class, 'distroy'])->name('customers.destroy');
         Route::get('/edit/{id}', [App\Http\Controllers\CustomerController::class, 'edit'])->name('customers.edit');
         Route::get('/show/{id}', [App\Http\Controllers\CustomerController::class, 'show'])->name('customers.show');
+        Route::get('/view/{id}', [App\Http\Controllers\CustomerController::class, 'view'])->name('customers.view');
     });
 
         Route::group(['prefix' => 'bank-account'], function () {
@@ -158,6 +159,15 @@ Route::middleware('auth')->group(function () {
     // ********** Stock ********
     Route::group(['prefix' => 'stock'], function () {
         Route::get('/index', [App\Http\Controllers\StockController::class, 'index'])->name('stock.index');
+    });
+
+    // ********** Product Waste ********
+    Route::group(['prefix' => 'product-waste'], function () {
+        Route::get('/index', [App\Http\Controllers\ProductWasteController::class, 'index'])->name('product-waste.index');
+        Route::get('/create', [App\Http\Controllers\ProductWasteController::class, 'create'])->name('product-waste.create');
+        Route::post('/store', [App\Http\Controllers\ProductWasteController::class, 'store'])->name('product-waste.store');
+        Route::get('/show/{id}', [App\Http\Controllers\ProductWasteController::class, 'show'])->name('product-waste.show');
+        Route::get('/batches', [App\Http\Controllers\ProductWasteController::class, 'getBatches'])->name('product-waste.batches');
     });
 
     // ********** Chart of Accounts ********
@@ -266,6 +276,18 @@ Route::middleware('auth')->group(function () {
     Route::group(['prefix' => 'near-to-expiry'], function () {
         Route::get('/index', [App\Http\Controllers\NearToExpiryController::class, 'index'])->name('near-to-expiry.index');
         Route::get('/print', [App\Http\Controllers\NearToExpiryController::class, 'print'])->name('near-to-expiry.print');
+        Route::post('/waste', [App\Http\Controllers\NearToExpiryController::class, 'waste'])->name('near-to-expiry.waste');
+        Route::post('/return', [App\Http\Controllers\NearToExpiryController::class, 'returnBatch'])->name('near-to-expiry.return');
+    });
+
+    // ********** Database Backup ********
+    Route::group(['prefix' => 'backup'], function () {
+        Route::get('/index', [App\Http\Controllers\BackupController::class, 'index'])->name('backup.index');
+        Route::post('/create', [App\Http\Controllers\BackupController::class, 'create'])->name('backup.create');
+        Route::get('/download/{filename}', [App\Http\Controllers\BackupController::class, 'download'])->name('backup.download');
+        Route::delete('/delete/{filename}', [App\Http\Controllers\BackupController::class, 'destroy'])->name('backup.destroy');
+        Route::post('/import', [App\Http\Controllers\BackupController::class, 'import'])->name('backup.import');
+        Route::post('/update-path', [App\Http\Controllers\BackupController::class, 'updatePath'])->name('backup.update-path');
     });
 
     // ********** Settings ********
@@ -282,6 +304,33 @@ Route::middleware('auth')->group(function () {
         Route::get('/edit/{id}', [App\Http\Controllers\UserController::class, 'edit'])->name('users.edit');
         Route::put('/update/{id}', [App\Http\Controllers\UserController::class, 'update'])->name('users.update');
         Route::delete('/delete/{id}', [App\Http\Controllers\UserController::class, 'destroy'])->name('users.destroy');
+    });
+
+    // ********** Order Booker Commissions ********
+    Route::group(['prefix' => 'commissions'], function () {
+        Route::get('/index', [App\Http\Controllers\CommissionController::class, 'index'])->name('commissions.index');
+        Route::post('/approve/{id}', [App\Http\Controllers\CommissionController::class, 'approve'])->name('commissions.approve');
+        Route::delete('/cancel/{id}', [App\Http\Controllers\CommissionController::class, 'cancel'])->name('commissions.cancel');
+    });
+
+    // ********** Commission Payments ********
+    Route::group(['prefix' => 'commission-payments'], function () {
+        Route::get('/index', [App\Http\Controllers\CommissionPaymentController::class, 'index'])->name('commission-payments.index');
+        Route::get('/create', [App\Http\Controllers\CommissionPaymentController::class, 'create'])->name('commission-payments.create');
+        Route::post('/store', [App\Http\Controllers\CommissionPaymentController::class, 'store'])->name('commission-payments.store');
+        Route::get('/show/{id}', [App\Http\Controllers\CommissionPaymentController::class, 'show'])->name('commission-payments.show');
+        Route::get('/print/{id}', [App\Http\Controllers\CommissionPaymentController::class, 'print'])->name('commission-payments.print');
+        Route::get('/commissions/{orderBookerId}', [App\Http\Controllers\CommissionPaymentController::class, 'getCommissions'])->name('commission-payments.commissions');
+    });
+
+    // ********** Commission Reports ********
+    Route::group(['prefix' => 'commission-reports'], function () {
+        Route::get('/performance', [App\Http\Controllers\CommissionReportController::class, 'orderBookerPerformance'])->name('commissions.reports.performance');
+        Route::get('/performance/print', [App\Http\Controllers\CommissionReportController::class, 'printPerformance'])->name('commissions.reports.performance.print');
+        Route::get('/due', [App\Http\Controllers\CommissionReportController::class, 'dueReport'])->name('commissions.reports.due');
+        Route::get('/due/print', [App\Http\Controllers\CommissionReportController::class, 'printDue'])->name('commissions.reports.due.print');
+        Route::get('/monthly', [App\Http\Controllers\CommissionReportController::class, 'monthlyReport'])->name('commissions.reports.monthly');
+        Route::get('/monthly/print', [App\Http\Controllers\CommissionReportController::class, 'printMonthly'])->name('commissions.reports.monthly.print');
     });
 });
 

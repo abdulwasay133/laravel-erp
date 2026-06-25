@@ -31,7 +31,14 @@ class BankAccountController extends Controller
             ->make(true);
         }
         }
-        return view('bank.index');
+        $stats = [
+            'total_accounts' => BankAccount::count(),
+            'total_balance' => BankAccount::sum('current_balance'),
+            'total_opening' => BankAccount::sum('opening_balance'),
+            'active_accounts' => BankAccount::where('current_balance', '>', 0)->count(),
+        ];
+
+        return view('bank.index', compact('stats'));
     }
 
     public function create()
